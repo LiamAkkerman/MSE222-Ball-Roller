@@ -39,16 +39,31 @@ i = 1; %let's try this way, still need to iterate
 sx(i) = subs(sx_brach, h_brach, h(1));    %define parametic equations for 1st Brachistochrone curve
 sy(i) = subs(sy_brach, h_brach, h(1)) + hmax;
 deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
-deriv2(i) = simplify(diff(deriv(i)))
-theta(i) = simplify(atan(deriv(i)))
-
+deriv2(i) = simplify(diff(deriv(i)));
+theta(i) = simplify(atan(deriv(i)));
+%TODO make function for all of these
 
 tmin(i) = 0;
 tmax(i) = 3.14*1.25;           %max t for 1st section
 %TODO automate max t
 
-double(subs(theta(i), t, tmax(i)))
-                        
+ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
+hold on;
+
+i = 2;
+deriv(i) = subs(deriv(i-1), t, tmax(i-1));
+deriv2(i) = simplify(diff(deriv(i)));
+theta(i) = simplify(atan(deriv(i)));
+
+sx(i) = subs(sx(i-1), t, tmax(i-1)) + t;
+sy(i) = subs(sy(i-1), t, tmax(i-1)) + t*deriv(i);
+
+tmin(i) = 0;
+tmax(i) = 10;
+
+
+
+ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
 
                         
 %for i = 1:segs
