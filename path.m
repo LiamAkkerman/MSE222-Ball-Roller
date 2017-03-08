@@ -117,5 +117,16 @@ sx(i) = x_factor*subs(sx_brach, h_brach, h(i)) + subs(sx(i-1), t, tmin(i-1));
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
                         
- 
+
+%last line, flat
+i = 6;
+tmin(i) = 0;
+tmax(i) = circ_end_pos(1) - subs(sx(i-1), t, tmax(i-1)) + 0.5*balldia + mmininch;
+sx(i) = t + subs(sx(i-1), t, tmax(i-1));
+sy(i) = subs(sy(i-1), t, tmax(i-1));
+deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
+deriv2(i) = simplify(diff(deriv(i)));
+theta(i) = simplify(atan(deriv(i)));
+
+ezplot(sx(i),sy(i),[tmin(i),tmax(i)])
 
