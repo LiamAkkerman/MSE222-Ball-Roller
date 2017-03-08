@@ -10,7 +10,7 @@ syms sx sy
 syms sx_brach sy_brach  
 
 %project constants
-hmax = 914.4; %starting hieght in mm
+hmax = 889; %starting hieght in mm
 segs = 7;   %number of line segments
 mmininch = 25.4; %how many mm in an inch
 
@@ -22,6 +22,7 @@ tmax = NaN(segs);
 %vectors of parameetric equations for each line segments
 sx = sym('sx', [1,segs]);
 sy = sym('sy', [1,segs]);
+deriv = sym('sy', [1,segs]);
 
 %define Brachistochrone curve parametric equations
 sx_brach = 0.5*h_brach*(t-sin(t));  
@@ -36,10 +37,21 @@ h(1) = 3*mmininch;
 i = 1; %let's try this way, still need to iterate
 %substitute a values into brach functions
 sx(i) = subs(sx_brach, h_brach, h(1));    %define parametic equations for 1st Brachistochrone curve
-sy(i) = subs(sy_brach, h_brach, h(1)) + hmax - mmininch;
+sy(i) = subs(sy_brach, h_brach, h(1)) + hmax;
+deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
+deriv2(i) = simplify(diff(deriv(i)))
+theta(i) = simplify(atan(deriv(i)))
 
-%t1max = solve(s1y == -(3*25.4), t)
-tmax(1) = 3.14;           %max t for 1st section
-                        %TODO automate max t
 
-ezplot(sx(1),sy(1),[0,tmax(1)])     %plot sections
+tmin(i) = 0;
+tmax(i) = 3.14*1.25;           %max t for 1st section
+%TODO automate max t
+
+double(subs(theta(i), t, tmax(i)))
+                        
+
+                        
+%for i = 1:segs
+    ezplot(sx(i),sy(i),[tmin(i),tmax(i)])     %plot sections   
+%end    
+
