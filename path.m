@@ -1,3 +1,4 @@
+clear all;
 %TODO add info
 
 
@@ -35,10 +36,10 @@ h(1) = 3*mmininch;
 i = 1; %let's try this way, still need to iterate
 %substitute a values into brach functions
 sx(i) = subs(sx_brach, h_brach, h(1));    %define parametic equations for 1st Brachistochrone curve
-sy(i) = subs(sy_brach, h_brach, h(1));
+sy(i) = subs(sy_brach, h_brach, h(1)) + hmax - mmininch;
 
 %t1max = solve(s1y == -(3*25.4), t)
 tmax(1) = 3.14;           %max t for 1st section
                         %TODO automate max t
 
-fplot(s1x,s1y+hmax-mmininch,[0,tmax(1)])     %plot sections
+ezplot(sx(1),sy(1),[0,tmax(1)])     %plot sections
