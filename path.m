@@ -58,6 +58,9 @@ ezplot(sx(i),sy(i),[tmin(i),tmax(i)])
 
 i = 2;
 %linear segment, maybe we'll keep, maybe not
+%I made the max up randomly
+tmin(i) = 0;
+tmax(i) = 10;
 %inherits perovous derivitive
 deriv(i) = subs(deriv(i-1), t, tmax(i-1));
 deriv2(i) = simplify(diff(deriv(i)));
@@ -67,38 +70,48 @@ theta(i) = simplify(atan(deriv(i)));
 sx(i) = t + subs(sx(i-1), t, tmax(i-1));
 sy(i) = t*deriv(i) + subs(sy(i-1), t, tmax(i-1));
 
-%I made the max up randomly
-tmin(i) = 0;
-tmax(i) = 10;
-
 %add it to the plot
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
 
 
 i = 3;
 h(i) = 85;
+tmin(i) = 0;
+tmax(i) = 3.14;
+%translational offset is purely guessed. we could caluculate better based on
+%tridectory anaylsis
 sx(i) = -subs(sx_brach, h_brach, h(i)) + 255;
 sy(i) = subs(sy_brach, h_brach, h(i)) + 839;
 deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
 deriv2(i) = simplify(diff(deriv(i)));
 theta(i) = simplify(atan(deriv(i)));
 
-tmin(i) = 0;
-tmax(i) = 3.14;
-
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
 
 
 i = 4;
-h(i) = 3*balldia;
+h(i) = 2.5*balldia;
 tmin(i) = 0;
 tmax(i) = 3.14/2;
 sx(i) = -h(i)*cos(t) + subs(sx(i-1), t, tmax(i-1));
-sy(i) = h(i)*sin(t) + subs(sy(i-1), t, tmax(i-1)) + 1; %additional 1 is for tolerance
+sy(i) = h(i)*sin(t) + subs(sy(i-1), t, tmax(i-1)) - (h(i) - balldia) + 1; %additional 1 is for tolerance
+
+ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
+
+
+i = 5;
+h(i) = subs(sy(i-1), t, tmin(i-1)) - circ_end_pos(2);
+tmin(i) = 0;
+tmax(i) = 3.14;
+sx(i) = subs(sx_brach, h_brach, h(i)) + subs(sx(i-1), t, tmin(i-1));
+sy(i) = subs(sy_brach, h_brach, h(i)) + subs(sy(i-1), t, tmin(i-1));
+
+%standard brach curve is too long, scale it back.
+%possibley change to scale both x and y instead of just x
+x_factor = (circ_end_pos(1) + 0.5*balldia - subs(sx(i-1), t, tmin(i-1)) - 25)/(subs(sx(i), t, tmax(i)) - subs(sx(i-1), t, tmin(i-1)));
+sx(i) = x_factor*subs(sx_brach, h_brach, h(i)) + subs(sx(i-1), t, tmin(i-1));
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
                         
-%for i = 1:segs
-%    ezplot(sx(i),sy(i),[tmin(i),tmax(i)])     %plot sections   
-%end    
+ 
 
