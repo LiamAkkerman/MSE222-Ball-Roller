@@ -12,7 +12,7 @@ syms sx_brach sy_brach
 
 %project constants
 hmax = 889; %starting hieght in mm
-segs = 7;   %number of line segments
+segs = 6;   %number of line segments
 mmininch = 25.4; %how many mm in an inch
 balldia = 15; %diameter of marble, 15 is a guess
 
@@ -20,6 +20,9 @@ balldia = 15; %diameter of marble, 15 is a guess
 h = NaN(segs);
 tmin = NaN(segs);
 tmax = NaN(segs);
+%deriv = NaN(segs);
+%deriv2 = NaN(segs);
+%theta = NaN(segs);
 
 %vectors of parameetric equations for each line segments
 sx = sym('sx', [1,segs]);
@@ -41,18 +44,15 @@ rectangle('Position', circ_end_pos, 'Curvature',[1 1]);
 
 i = 1; %let's try this way, still need to iterate
 %substitute a values into brach functions
-h(i) = 75;
-sx(i) = subs(sx_brach, h_brach, h(1)) + mmininch - 0.5*balldia;
-sy(i) = subs(sy_brach, h_brach, h(1)) + hmax - 0.5*balldia;
-deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
-deriv2(i) = simplify(diff(deriv(i)));
-theta(i) = simplify(atan(deriv(i)));
-%TODO make function for all of these
-
 %the max is made up to have a upwards slope for the sick jump
 tmin(i) = 0;
 tmax(i) = 3.14*1.25;
-%TODO automate max t
+h(i) = 75;
+sx(i) = subs(sx_brach, h_brach, h(1)) + mmininch - 0.5*balldia;
+sy(i) = subs(sy_brach, h_brach, h(1)) + hmax - 0.5*balldia;
+
+%next line needs this
+deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
 
@@ -62,14 +62,10 @@ i = 2;
 %I made the max up randomly
 tmin(i) = 0;
 tmax(i) = 10;
-%inherits perovous derivitive
-deriv(i) = subs(deriv(i-1), t, tmax(i-1));
-deriv2(i) = simplify(diff(deriv(i)));
-theta(i) = simplify(atan(deriv(i)));
 
 %parametric equation of line
 sx(i) = t + subs(sx(i-1), t, tmax(i-1));
-sy(i) = t*deriv(i) + subs(sy(i-1), t, tmax(i-1));
+sy(i) = t*subs(deriv(i-1), t, tmax(i-1)) + subs(sy(i-1), t, tmax(i-1));
 
 %add it to the plot
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
@@ -84,9 +80,6 @@ tmax(i) = 3.14;
 %tridectory anaylsis
 sx(i) = -subs(sx_brach, h_brach, h(i)) + 255;
 sy(i) = subs(sy_brach, h_brach, h(i)) + 839;
-deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
-deriv2(i) = simplify(diff(deriv(i)));
-theta(i) = simplify(atan(deriv(i)));
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
 
@@ -124,9 +117,16 @@ tmin(i) = 0;
 tmax(i) = circ_end_pos(1) - subs(sx(i-1), t, tmax(i-1)) + 0.5*balldia + mmininch;
 sx(i) = t + subs(sx(i-1), t, tmax(i-1));
 sy(i) = subs(sy(i-1), t, tmax(i-1));
-deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
-deriv2(i) = simplify(diff(deriv(i)));
-theta(i) = simplify(atan(deriv(i)));
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)])
+
+
+
+%get more info for anaylis
+for i = 1:segs
+    deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
+    deriv2(i) = simplify(diff(deriv(i)));
+    theta(i) = simplify(atan(deriv(i)));
+end
+
 
