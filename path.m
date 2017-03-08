@@ -56,8 +56,9 @@ tmax(i) = 3.14*1.25;
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
 
-i = 2;
+
 %linear segment, maybe we'll keep, maybe not
+i = 2;
 %I made the max up randomly
 tmin(i) = 0;
 tmax(i) = 10;
@@ -74,6 +75,7 @@ sy(i) = t*deriv(i) + subs(sy(i-1), t, tmax(i-1));
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
 
 
+%landing ramp
 i = 3;
 h(i) = 85;
 tmin(i) = 0;
@@ -89,6 +91,7 @@ theta(i) = simplify(atan(deriv(i)));
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
 
 
+%arc to bring the ball down to the last curve
 i = 4;
 h(i) = 2.5*balldia;
 tmin(i) = 0;
@@ -99,6 +102,7 @@ sy(i) = h(i)*sin(t) + subs(sy(i-1), t, tmax(i-1)) - (h(i) - balldia) + 1; %addit
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
 
 
+%last large brach curve
 i = 5;
 h(i) = subs(sy(i-1), t, tmin(i-1)) - circ_end_pos(2);
 tmin(i) = 0;
