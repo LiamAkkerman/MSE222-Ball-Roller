@@ -30,13 +30,15 @@ sx_brach = 0.5*h_brach*(t-sin(t));
 sy_brach = -0.5*h_brach*(1-cos(t));
 
 
-     
+%plot borders
+rectangle('Position', [0 0 914.4 914.4]);
+hold on;
 
 
 i = 1; %let's try this way, still need to iterate
 %substitute a values into brach functions
 h(i) = 75;
-sx(i) = subs(sx_brach, h_brach, h(1));    %define parametic equations for 1st Brachistochrone curve
+sx(i) = subs(sx_brach, h_brach, h(1)) + mmininch;    %define parametic equations for 1st Brachistochrone curve
 sy(i) = subs(sy_brach, h_brach, h(1)) + hmax;
 deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
 deriv2(i) = simplify(diff(deriv(i)));
@@ -49,7 +51,6 @@ tmax(i) = 3.14*1.25;
 %TODO automate max t
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
-hold on;
 
 i = 2;
 %linear segment, maybe we'll keep, maybe not
@@ -72,7 +73,7 @@ ezplot(sx(i),sy(i),[tmin(i),tmax(i)])
 
 i = 3;
 h(i) = 85;
-sx(i) = -subs(sx_brach, h_brach, h(i)) + 230;    %define parametic equations for 1st Brachistochrone curve
+sx(i) = -subs(sx_brach, h_brach, h(i)) + 255;    %define parametic equations for 1st Brachistochrone curve
 sy(i) = subs(sy_brach, h_brach, h(i)) + 850;
 deriv(i) = 0.45;
 deriv2(i) = simplify(diff(deriv(i)));
