@@ -127,6 +127,7 @@ for i = 1:segs
     deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
     deriv2(i) = simplify(diff(deriv(i)));
     theta(i) = simplify(atan(deriv(i)));
+    rad_of_curv(i) = ((1 + deriv(i)^2)^(3/2))/deriv2(i);
 end
 
 
