@@ -17,9 +17,9 @@ mmininch = 25.4; %how many mm in an inch
 balldia = 15; %diameter of marble, 15 is a guess
 
 %initialize empty vectors for hieghts, starts, and ends
-h = NaN(segs);
-tmin = NaN(segs);
-tmax = NaN(segs);
+h = NaN([1,segs]);
+tmin = NaN([1,segs]);
+tmax = NaN([1,segs]);
 %deriv = NaN(segs);
 %deriv2 = NaN(segs);
 %theta = NaN(segs);
