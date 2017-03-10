@@ -3,9 +3,9 @@ function [ Soln ] = linear_analysis(theta, ball_dim)
 %ball dimensions
 
 %Input ball dimensions (for ease of reading)
-m = ball_dim(1) %mass
-radius = ball_dim(2)
-Ig = ball_dim(3)
+m = ball_dim(1); %mass
+radius = ball_dim(2);
+Ig = ball_dim(3);
 
 g = 9.81;
 %angle theta is given as input
