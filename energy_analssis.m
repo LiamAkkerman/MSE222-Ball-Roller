@@ -19,9 +19,11 @@ h_f(i) = subs(sy(i), t, tmax(i));
 %v(i);
 
 %TODO make nomal force equation
-work_friction(i) = int(normal_F(i)*d_arc_length(i), t, tmin(i), tmax(i));
-work_gravity(i) = -int(ball_mass*g*(sy(i) - h_i(i)), t, tmin(1), tmax(i));
+normal_F(i) = ball_mass*g - (v_g(i)^2)/(rad_of_curv(i) - (ball_dia/2))
+work_friction(i) = int(normal_F(i)*d_arc_length(i), t, tmin(i), tmax(i))
+work_gravity(i) = -int(ball_mass*g*(sy(i) - h_i(i)), t, tmin(1), tmax(i))
 
-ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(omega_p*ball_dia/2)^2;
-
+ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(v_g/ball_dia/2)^2;
+%solve(subs(ke(i-1),t,tmax(i-1)) + (work_fiction + work_graviy) == ke(i), v_g(i)); 
+solve(0 + (work_friction + work_gravity) == ke(i), v_g(i),'Real', 1)
 
