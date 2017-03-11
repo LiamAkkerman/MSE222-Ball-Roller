@@ -14,7 +14,7 @@ syms sx_brach sy_brach
 hmax = 889; %starting hieght in mm
 segs = 6;   %number of line segments
 mmininch = 25.4; %how many mm in an inch
-balldia = 15; %diameter of marble, 15 is a guess
+ball_dia = 15; %diameter of marble, 15 is a guess
 
 %initialize empty vectors for hieghts, starts, and ends
 h = NaN([1,segs]);
@@ -37,8 +37,8 @@ sy_brach = -0.5*h_brach*(1-cos(t));
 %plot borders
 rectangle('Position', [0 0 914.4 914.4]);
 hold on;
-circ_start_pos = [(mmininch - 0.5*balldia) (hmax - 0.5*balldia) balldia balldia];
-circ_end_pos = [(hmax - 0.5*balldia) (mmininch - 0.5*balldia) balldia balldia];
+circ_start_pos = [(mmininch - 0.5*ball_dia) (hmax - 0.5*ball_dia) ball_dia ball_dia];
+circ_end_pos = [(hmax - 0.5*ball_dia) (mmininch - 0.5*ball_dia) ball_dia ball_dia];
 rectangle('Position', circ_start_pos, 'Curvature',[1 1]);
 rectangle('Position', circ_end_pos, 'Curvature',[1 1]);
 
@@ -48,8 +48,8 @@ i = 1; %let's try this way, still need to iterate
 tmin(i) = 0;
 tmax(i) = 3.14*1.25;
 h(i) = 75;
-sx(i) = subs(sx_brach, h_brach, h(1)) + mmininch - 0.5*balldia;
-sy(i) = subs(sy_brach, h_brach, h(1)) + hmax - 0.5*balldia;
+sx(i) = subs(sx_brach, h_brach, h(1)) + mmininch - 0.5*ball_dia;
+sy(i) = subs(sy_brach, h_brach, h(1)) + hmax - 0.5*ball_dia;
 
 %next line needs this
 deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
@@ -86,11 +86,11 @@ ezplot(sx(i),sy(i),[tmin(i),tmax(i)])
 
 %arc to bring the ball down to the last curve
 i = 4;
-h(i) = 2.5*balldia;
+h(i) = 2.5*ball_dia;
 tmin(i) = 0;
 tmax(i) = 3.14/2;
 sx(i) = -h(i)*cos(t) + subs(sx(i-1), t, tmax(i-1));
-sy(i) = h(i)*sin(t) + subs(sy(i-1), t, tmax(i-1)) - (h(i) - balldia) + 1; %additional 1 is for tolerance
+sy(i) = h(i)*sin(t) + subs(sy(i-1), t, tmax(i-1)) - (h(i) - ball_dia) + 1; %additional 1 is for tolerance
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
 
@@ -105,7 +105,7 @@ sy(i) = subs(sy_brach, h_brach, h(i)) + subs(sy(i-1), t, tmin(i-1));
 
 %standard brach curve is too long, scale it back.
 %possibley change to scale both x and y instead of just x
-x_factor = (circ_end_pos(1) + 0.5*balldia - subs(sx(i-1), t, tmin(i-1)) - 25)/(subs(sx(i), t, tmax(i)) - subs(sx(i-1), t, tmin(i-1)));
+x_factor = (circ_end_pos(1) + 0.5*ball_dia - subs(sx(i-1), t, tmin(i-1)) - 25)/(subs(sx(i), t, tmax(i)) - subs(sx(i-1), t, tmin(i-1)));
 sx(i) = x_factor*subs(sx_brach, h_brach, h(i)) + subs(sx(i-1), t, tmin(i-1));
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
@@ -114,7 +114,7 @@ ezplot(sx(i),sy(i),[tmin(i),tmax(i)])
 %last line, flat
 i = 6;
 tmin(i) = 0;
-tmax(i) = circ_end_pos(1) - subs(sx(i-1), t, tmax(i-1)) + 0.5*balldia + mmininch;
+tmax(i) = circ_end_pos(1) - subs(sx(i-1), t, tmax(i-1)) + 0.5*ball_dia + mmininch;
 sx(i) = t + subs(sx(i-1), t, tmax(i-1));
 sy(i) = subs(sy(i-1), t, tmax(i-1));
 
@@ -128,6 +128,7 @@ for i = 1:segs
     deriv2(i) = simplify(diff(deriv(i)));
     theta(i) = simplify(atan(deriv(i)));
     rad_of_curv(i) = ((1 + deriv(i)^2)^(3/2))/deriv2(i);
+    d_arc_length(i) = simplify(sqrt(diff(sy(i))^2 + diff(sx(i))^2));
 end
 
 
