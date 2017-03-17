@@ -20,11 +20,8 @@ g = 9.81;
 
 
 syms apx %Setup of apx unknown variable for symbolic equation
-
 equn = -m*g*sin(theta)*radius == +radius*m*apx + (Ig+m*(radius^2))*(apx/radius);
-
 Soln(1) = solve(equn, apx);
-
 Soln(2) = -Soln(1)/radius; %gives ang_accel direction according to right-hand rule
 
 end
