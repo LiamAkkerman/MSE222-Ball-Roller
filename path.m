@@ -1,6 +1,7 @@
 clear all;
 clf;
-%TODO add info
+%generate path symbolic parametric functions 
+%must be called by other scripts
 
 
 %basic mathmatical symbols
@@ -49,7 +50,7 @@ tmin(i) = 0;
 tmax(i) = 3.14*1.25;
 h(i) = 75;
 sx(i) = subs(sx_brach, h_brach, h(1)) + mmininch - 0.5*ball_dia;
-sy(i) = subs(sy_brach, h_brach, h(1)) + hmax - 0.5*ball_dia;
+sy(i) = subs(sy_brach, h_brach, h(1)) + hmax;
 
 %next line needs this
 deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
