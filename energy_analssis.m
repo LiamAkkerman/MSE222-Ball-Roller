@@ -1,6 +1,7 @@
-%TODO add into info
+%uses symbolic euqations to calculate velocity at any given position
+%currently in terms of t of each segment
 
-syms h_i h_f y
+syms y
 syms work_friction work_gravity normal_F ke v_g omega_p
 %normal_F = nomal force a given posiion
 %ke = kennetic enegy
@@ -19,26 +20,29 @@ I_g = (2/5)*ball_mass*(ball_dia/2)^2;
 g = 9.81;
 
 i = 1;
-%h_i(i) = subs(sy(i), t, tmin(i));
-%h_f(i) = subs(sy(i), t, tmax(i));
-%s(i) = int(d_arc_length(i), t, tmin(i), tmax(i));
-%v(i);
 
-%TODO make nomal force equation
+%TODO not neglect friction
 %normal_F(i) = ball_mass*g - (v_g(i)^2)/(rad_of_curv(i) - (ball_dia/2))
 %work_friction(i) = int(normal_F(i)*d_arc_length(i), t, tmin(i), tmax(i))
 work_friction(i) = 0;
-work_gravity(i) = -int(ball_mass*g, y, subs(sy(i), t, tmin(i)), sy(i))
+%integrates work done by gravity from the start of the curve to an abitrary t
+work_gravity(i) = -int(ball_mass*g, y, subs(sy(i), t, tmin(i)), sy(i));
+%sums all work done
 work_done(i) =  work_gravity(i) + work_friction(i);
 
 %kinnetic energy equation
 ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(v_g(i)/ball_dia/2)^2;
 %v_temp_vector = solve(subs(ke(i-1),t,tmax(i-1)) + work_done(i) == ke(i), v_g(i));
 v_temp_vector = solve(0 + work_done(i) == ke(i), v_g(i));
+%only take one result, and make it posative
 v_g(i) = abs(v_temp_vector(1));
+%reassign values of kinnetic energy now that v_g is known
 ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(v_g(i)/ball_dia/2)^2;
 
+%display velocity at the end of the segment
 double(subs(v_g(i), t, tmax(i)))
+
+
 
 
 i = 2;

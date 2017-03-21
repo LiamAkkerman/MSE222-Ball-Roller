@@ -2,6 +2,7 @@ clear all;
 clf;
 %generate path symbolic parametric functions 
 %must be called by other scripts
+%TODO re-parametritize by arclength, so everything is uses the same independant variable
 
 
 %basic mathmatical symbols
