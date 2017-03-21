@@ -23,14 +23,26 @@ i = 1;
 %work_friction(i) = int(normal_F(i)*d_arc_length(i), t, tmin(i), tmax(i))
 work_friction(i) = 0;
 work_gravity(i) = -int(ball_mass*g, y, subs(sy(i), t, tmin(i)), sy(i))
-work_done =  work_gravity + work_friction;
+work_done(i) =  work_gravity(i) + work_friction(i);
 
 ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(v_g/ball_dia/2)^2;
 %solve(subs(ke(i-1),t,tmax(i-1)) + (work_fiction + work_graviy) == ke(i), v_g(i)); 
-v_temp_vector = solve(0 + (work_done) == ke(i), v_g(i));
+v_temp_vector = solve(0 + work_done(i) == ke(i), v_g(i))
 v_g(i) = abs(v_temp_vector(1))
 
 double(subs(v_g(i), t, tmax(i)))
 
 
+i = 2;
+sy(i)
+work_friction(i) = 0;
+work_gravity(i) = -int(ball_mass*g, y, subs(sy(i), t, tmin(i)), sy(i))
+work_done(i) =  work_gravity(i) + work_friction(i)
+
+ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(v_g/ball_dia/2)^2
+v_temp_vector = solve(subs(ke(i-1),t,tmax(i-1)) + work_done(i) == ke(i), v_g(i)) 
+%v_temp_vector = solve(0 + work_done == ke(i), v_g(i));
+v_g(i) = abs(v_temp_vector(1))
+
+double(subs(v_g(i), t, tmax(i)))
 
