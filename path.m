@@ -1,8 +1,6 @@
 clear all;
 clf;
-%generate path symbolic parametric functions 
-%must be called by other scripts
-%TODO re-parametritize by arclength, so everything is uses the same independant variable
+%TODO add info
 
 
 %basic mathmatical symbols
@@ -16,7 +14,7 @@ syms sx_brach sy_brach
 hmax = 889; %starting hieght in mm
 segs = 6;   %number of line segments
 mmininch = 25.4; %how many mm in an inch
-ball_dia = 15; %diameter of marble, 15 is a guess
+ball_dia = 8.1; %diameter of marble, 15 is a guess
 
 %initialize empty vectors for hieghts, starts, and ends
 h = NaN([1,segs]);
@@ -51,7 +49,7 @@ tmin(i) = 0;
 tmax(i) = 3.14*1.25;
 h(i) = 75;
 sx(i) = subs(sx_brach, h_brach, h(1)) + mmininch - 0.5*ball_dia;
-sy(i) = subs(sy_brach, h_brach, h(1)) + hmax;
+sy(i) = subs(sy_brach, h_brach, h(1)) + hmax - 0.5*ball_dia;
 
 %next line needs this
 deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
@@ -92,7 +90,7 @@ h(i) = 2.5*ball_dia;
 tmin(i) = 0;
 tmax(i) = 3.14/2;
 sx(i) = -h(i)*cos(t) + subs(sx(i-1), t, tmax(i-1));
-sy(i) = h(i)*sin(t) + subs(sy(i-1), t, tmax(i-1)) - (h(i) - ball_dia) + 1; %additional 1 is for tolerance
+sy(i) = h(i)*sin(t) + subs(sy(i-1 ), t, tmax(i-1)) - (h(i) - ball_dia) + 1; %additional 1 is for tolerance
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
 
@@ -136,5 +134,3 @@ for i = 1:segs
     %need to use parametric equation for rad of curv (what a beastcyclo)
     d_arc_length(i) = simplify(sqrt(diff(sy(i))^2 + diff(sx(i))^2));
 end
-
-
