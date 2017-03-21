@@ -13,8 +13,8 @@ I_g = (2/5)*ball_mass*(ball_dia/2)^2;
 g = 9.81;
 
 i = 1;
-h_i(i) = subs(sy(i), t, tmin(i));
-h_f(i) = subs(sy(i), t, tmax(i));
+%h_i(i) = subs(sy(i), t, tmin(i));
+%h_f(i) = subs(sy(i), t, tmax(i));
 %s(i) = int(d_arc_length(i), t, tmin(i), tmax(i));
 %v(i);
 
@@ -27,6 +27,10 @@ work_done =  work_gravity + work_friction;
 
 ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(v_g/ball_dia/2)^2;
 %solve(subs(ke(i-1),t,tmax(i-1)) + (work_fiction + work_graviy) == ke(i), v_g(i)); 
-solve(0 + (work_friction + work_gravity) == ke(i), v_g(i),'Real', 1)
+v_temp_vector = solve(0 + (work_done) == ke(i), v_g(i));
+v_g(i) = abs(v_temp_vector(1))
+
+double(subs(v_g(i), t, tmax(i)))
+
 
 
