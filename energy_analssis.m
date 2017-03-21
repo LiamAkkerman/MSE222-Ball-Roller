@@ -8,6 +8,12 @@ syms work_friction work_gravity normal_F ke v_g omega_p
 %omega_p = angular veolicty where ball touches the track
 %       is this right?
 
+work_friction = sym('work_friction', [1,segs]);
+work_gravity = sym('work_gravity', [1,segs]);
+work_done = sym('work_done', [1,segs]);
+ke = sym('ke', [1,segs]);
+v_g = sym('v_g', [1,segs]);
+
 ball_mass = 0.0015; %in kgs
 I_g = (2/5)*ball_mass*(ball_dia/2)^2;
 g = 9.81;
@@ -25,24 +31,31 @@ work_friction(i) = 0;
 work_gravity(i) = -int(ball_mass*g, y, subs(sy(i), t, tmin(i)), sy(i))
 work_done(i) =  work_gravity(i) + work_friction(i);
 
-ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(v_g/ball_dia/2)^2;
-%solve(subs(ke(i-1),t,tmax(i-1)) + (work_fiction + work_graviy) == ke(i), v_g(i)); 
-v_temp_vector = solve(0 + work_done(i) == ke(i), v_g(i))
-v_g(i) = abs(v_temp_vector(1))
+%kinnetic energy equation
+ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(v_g(i)/ball_dia/2)^2;
+%v_temp_vector = solve(subs(ke(i-1),t,tmax(i-1)) + work_done(i) == ke(i), v_g(i));
+v_temp_vector = solve(0 + work_done(i) == ke(i), v_g(i));
+v_g(i) = abs(v_temp_vector(1));
+ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(v_g(i)/ball_dia/2)^2;
 
 double(subs(v_g(i), t, tmax(i)))
 
 
 i = 2;
-sy(i)
+%neglecting firction currently
 work_friction(i) = 0;
-work_gravity(i) = -int(ball_mass*g, y, subs(sy(i), t, tmin(i)), sy(i))
-work_done(i) =  work_gravity(i) + work_friction(i)
+%integrates work done by gravity from the start of the curve to an abitrary t
+work_gravity(i) = -int(ball_mass*g, y, subs(sy(i), t, tmin(i)), sy(i));
+%sums all work done
+work_done(i) =  work_gravity(i) + work_friction(i);
 
-ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(v_g/ball_dia/2)^2
-v_temp_vector = solve(subs(ke(i-1),t,tmax(i-1)) + work_done(i) == ke(i), v_g(i)) 
-%v_temp_vector = solve(0 + work_done == ke(i), v_g(i));
-v_g(i) = abs(v_temp_vector(1))
+%kinnnetic energy sum
+ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(v_g(i)/ball_dia/2)^2;
+%solves energy equation to terms of t. quadradic so results in two values
+v_temp_vector = solve(subs(ke(i-1),t,tmax(i-1)) + work_done(i) == ke(i), v_g(i));
+%only take one result, and make it posative
+v_g(i) = abs(v_temp_vector(1));
 
+%display velocity at the end of the segment
 double(subs(v_g(i), t, tmax(i)))
 
