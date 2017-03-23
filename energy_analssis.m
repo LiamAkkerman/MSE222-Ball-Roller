@@ -14,24 +14,47 @@ work_gravity = sym('work_gravity', [1,segs]);
 work_done = sym('work_done', [1,segs]);
 ke = sym('ke', [1,segs]);
 v_g = sym('v_g', [1,segs]);
+h = sym('h', [1,segs]);
+h_initial = NaN([1,segs]);
 
 ball_mass = 0.000714; %in kgs
 I_g = (2/5)*ball_mass*ball_radius^2;
 g = 9.81;
 
+
+%iterate to calculate heights for each segement
+for i = 1:segs
+    %change for if ball is on the underside of curve
+    switch i
+        case {1,2,3,5,6}
+            %equation for hieght at any given point on curve
+            h(i) = sy(i) + ball_radius*cos(theta(i));
+            %initial hieght, used limit to avoid div by 0 errors
+            h_initial(i) = limit(h(i), t, tmin(i));
+        case {4}
+            %equation for hieght at any given point on curve
+            h(i) = sy(i) - ball_radius*cos(theta(i));
+            %initial hieght, used limit to avoid div by 0 errors
+            h_initial(i) = limit(h(i), t, tmin(i));
+    end
+end
+
+%iterate to calculate work for each segement
+for i = 1:segs
+    %neglecting firction currently
+    work_friction(i) = 0;
+    %integrates work done by gravity from the start of the curve to an abitrary t
+    work_gravity(i) = -int(ball_mass*g, y, h_initial(i), h(i));
+    %sums all work done
+    work_done(i) = work_gravity(i) + work_friction(i);
+end
+
+
+
 i = 1;
-%equation for hieght at any given point on curve
-h(i) = sy(i) + ball_radius*cos(theta(i));
-%initial hieght, used limit to avoid div by 0 errors
-h_initial(i) = limit(h(i), t, tmin(i));
 %TODO not neglect friction
 %normal_F(i) = ball_mass*g - (v_g(i)^2)/(rad_of_curv(i) - (ball_dia/2))
 %work_friction(i) = int(normal_F(i)*d_arc_length(i), t, tmin(i), tmax(i))
-work_friction(i) = 0;
-%integrates work done by gravity from the start of the curve to an abitrary t
-work_gravity(i) = -int(ball_mass*g, y, h_initial(i), h(i));
-%sums all work done
-work_done(i) = work_gravity(i) + work_friction(i);
 
 %kinnetic energy equation
 ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(v_g(i)/ball_radius)^2;
@@ -49,16 +72,6 @@ double(subs(v_g(i), t, tmax(i)))
 
 
 i = 2;
-%equation for hieght at any given point on curve
-h(i) = sy(i) + ball_radius*cos(theta(i));
-h_initial(i) = limit(h(i), t, tmin(i));
-%neglecting firction currently
-work_friction(i) = 0;
-%integrates work done by gravity from the start of the curve to an abitrary t
-work_gravity(i) = -int(ball_mass*g, y, h_initial(i), h(i));
-%sums all work done
-work_done(i) = work_gravity(i) + work_friction(i);
-
 %kinnnetic energy sum
 ke(i) = (1/2)*ball_mass*v_g(i)^2 + (1/2)*I_g*(v_g(i)/ball_radius)^2;
 %solves energy equation to terms of t. quadradic so results in two values
