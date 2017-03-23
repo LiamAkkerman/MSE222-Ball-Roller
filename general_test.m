@@ -1,5 +1,8 @@
 %general_test
 
+clc
+clear all
+
 %TODO
 % add code for each of the segments
 % NOTE: if any of the original path.m equations are changed, the code for
@@ -15,9 +18,10 @@ path()
 %Setup initial conditions
 curr_velo = [0,0,0,0]; %vgx, vgy, omega, alpha
 ball_dim = [0.000714,0.0081,1.8738216*10^-8]; %mass (kg), radius (m), MoI (kg/m^2)
-step = 0.01;  %step size (in seconds)
+timePerIter = 0.01;  %step size (in seconds)
 iter = 1;
 syms tvar;
+g = 9.81;
 
 %Bring in info from path.m
 tmin_ge = evalin('base','tmin'); %Initial t (vector) for each segment
@@ -51,8 +55,8 @@ while t_curr < tmax_ge(1)
     %theta given velocity, ball dimensions, segment #, and current t value
     
     %***Find v_new, omega, and angular accel
-    vgx_new = curr_velo(1) + a_new(1)*step; %tangential (x)
-    vgy_new = curr_velo(2) + a_new(2)*step; %normal (y)
+    vgx_new = curr_velo(1) + a_new(1)*timePerIter; %tangential (x)
+    vgy_new = curr_velo(2) + a_new(2)*timePerIter; %normal (y)
     curr_velo(1) = vgx_new;
     curr_velo(2) = vgy_new; %this can be simplified to just reassign a variable to itself again?
     curr_velo(3) = vgx_new/ball_dim(2); % omega = v/r
@@ -61,8 +65,8 @@ while t_curr < tmax_ge(1)
     
     
     %***Find X_new, Y_new
-    X_new = X_curr + cos(a_new(3))*(vgx_new*step + a_new(1)*step^2) - sin(a_new(3))*(vgy_new*step + a_new(2)*step^2);
-    Y_new = Y_curr + sin(a_new(3))*(vgx_new*step + a_new(1)*step^2) + cos(a_new(3))*(vgy_new*step + a_new(2)*step^2);
+    X_new = X_curr + cos(a_new(3))*(vgx_new*timePerIter + a_new(1)*timePerIter^2) - sin(a_new(3))*(vgy_new*timePerIter + a_new(2)*timePerIter^2);
+    Y_new = Y_curr + sin(a_new(3))*(vgx_new*timePerIter + a_new(1)*timePerIter^2) + cos(a_new(3))*(vgy_new*timePerIter + a_new(2)*timePerIter^2);
     X_curr = X_new;
     Y_curr = Y_new; %redundant, can be removed?
     %This is done by converting vgx & vgy tangential and normal velocities
@@ -86,7 +90,7 @@ while t_curr < tmax_ge(1)
     %fairly important to account for the difference.
     
     %***************************************************************************where did these constant numbers come from?
-    t_curr = eval(solve(-X_contact + (75*tvar)/2 - (75*sin(tvar))/2 + 179/10)) %uses sx_ge(1) equation
+    t_curr = eval(solve(-X_contact + (3*tvar)/80 - (3*sin(tvar))/80 + 173/10000)) %uses sx_ge(1) equation
     % 'snap' Y_curr to curve + add radius of ball to account for iteration error
     Y_curr = eval(subs(sy_ge(1),t,t_curr)) + ball_dim(2)*sin(a_new(3)+pi/2);
    
@@ -97,6 +101,7 @@ while t_curr < tmax_ge(1)
     results(4,iter) = sqrt(a_new(1)^2 + a_new(2)^2); % magnitude of accel
     results(5,iter) = curr_velo(3); % angular velocity
     results(6,iter) = curr_velo(4); % angular acceleration
+    results(7,iter) = a_new(3); %theta
     
     results_seg1(1) = curr_velo(1);
     results_seg1(2) = curr_velo(2);
@@ -104,7 +109,7 @@ while t_curr < tmax_ge(1)
     
     iter = iter + 1;
 end
-time_taken = (iter-1)*step
+time_taken = (iter-1)*timePerIter
 
 
 % ***** Second Segment
@@ -116,8 +121,8 @@ while t_curr < tmax_ge(2)
     %theta given velocity, ball dimensions, segment #, and current t value
     
     %***Find v_new, omega, and angular accel
-    vgx_new = curr_velo(1) + a_new(1)*step; %tangential (lowercase x)
-    vgy_new = curr_velo(2) + a_new(2)*step; %normal (lowercase y)
+    vgx_new = curr_velo(1) + a_new(1)*timePerIter; %tangential (lowercase x)
+    vgy_new = curr_velo(2) + a_new(2)*timePerIter; %normal (lowercase y)
     curr_velo(1) = vgx_new;
     curr_velo(2) = vgy_new; %this can be simplified to just reassign a variable to itself again?
     curr_velo(3) = vgx_new/ball_dim(2); % omega = v/r
@@ -125,8 +130,8 @@ while t_curr < tmax_ge(2)
     
     
     %***Find x_new, y_new (note: a_new(3) is theta)
-    X_new = X_curr + cos(a_new(3))*(vgx_new*step + a_new(1)*step^2) - sin(a_new(3))*(vgy_new*step + a_new(2)*step^2);
-    Y_new = Y_curr + sin(a_new(3))*(vgx_new*step + a_new(1)*step^2) + cos(a_new(3))*(vgy_new*step + a_new(2)*step^2);
+    X_new = X_curr + cos(a_new(3))*(vgx_new*timePerIter + a_new(1)*timePerIter^2) - sin(a_new(3))*(vgy_new*timePerIter + a_new(2)*timePerIter^2);
+    Y_new = Y_curr + sin(a_new(3))*(vgx_new*timePerIter + a_new(1)*timePerIter^2) + cos(a_new(3))*(vgy_new*timePerIter + a_new(2)*timePerIter^2);
     X_curr = X_new;
     Y_curr = Y_new;
     %This is done by converting vgx & vgy tangential and normal velocities
@@ -143,7 +148,7 @@ while t_curr < tmax_ge(2)
     %For explination, see segment 1 description of this part
     
     %*************************************again, what are these numbers?
-    t_curr = eval(solve(-X_contact + tvar - (75*sin(157/40))/2 + 13207/80)); %uses sx_ge(2) equation
+    t_curr = eval(solve(-X_contact + tvar - (3*sin(157/40))/80 + 13159/80000)) %uses sx_ge(2) equation
     % 'snap' Y_curr to curve + add radius of ball to account for iteration error
     Y_curr = eval(subs(sy_ge(2),t,t_curr)) + ball_dim(2)*sin(a_new(3)+pi/2);
     
@@ -154,10 +159,11 @@ while t_curr < tmax_ge(2)
     results(4,iter) = sqrt(a_new(1)^2 + a_new(2)^2); % magnitude of accel
     results(5,iter) = curr_velo(3); % angular velocity
     results(6,iter) = curr_velo(4); % angular acceleration
+    results(7,iter) = a_new(3); %theta
     
     iter = iter + 1;
 end
-time_taken = (iter-1)*step
+time_taken = (iter-1)*timePerIter
 
 
 
@@ -171,23 +177,25 @@ vgy_new = sin(a_new(3))*curr_velo(1) + cos(a_new(3))*curr_velo(2);
 curr_velo(1) = vgx_new;
 curr_velo(2) = vgy_new;
 
+
+
 %Find (approximate) point of impact for when to switch to segment 3
 %this is done by guessing location of impact point via the figure
-t_curr = eval(solve(-252.1 + (85*sin(tvar))/2 - (85*tvar)/2 + 255)); %(impact point x-coord approximated to 252.1)
+t_curr = eval(solve(-0.2521+ (17*sin(t))/400 - (17*t)/400 + 51/200)); %(impact point x-coord approximated to 0.2521)
 X_impact = eval(subs(sx_ge(3),t,t_curr)) - sin(eval(subs(theta_ge(3),t,t_curr)))*ball_dim(2);
 %Approx. x-coords of ball center of mass when it impacts segment 3
 
 while X_curr < X_impact
     
     %***Find v_new, omega, and angular accel
-    vgy_new = curr_velo(2) + -g*step; % accel down due to gravity
+    vgy_new = curr_velo(2) + -g*timePerIter; % accel down due to gravity
     curr_velo(2) = vgy_new; %this can be simplified to just reassign a variable to itself again?
     %omega remains unchanged
     curr_velo(4) = 0; % alpha = 0, no moment on ball
     
     %***Find x and y
-    X_curr = X_curr + curr_velo(1)*step;
-    Y_curr = Y_curr + curr_velo(2)*step;
+    X_curr = X_curr + curr_velo(1)*timePerIter;
+    Y_curr = Y_curr + curr_velo(2)*timePerIter;
     results(1,iter) = X_curr; % x position using global coords
     results(2,iter) = Y_curr; % y position using global coords
     iter = iter + 1;
@@ -208,8 +216,8 @@ while t_curr < tmax_ge(3)
     a_new = general_analysis(curr_velo,ball_dim, 3,t_curr); %finds agx,agy,theta
     
     %***Find v_new, omega, and angular accel
-    vgx_new = curr_velo(1) + a_new(1)*step; %tangential (x)
-    vgy_new = curr_velo(2) + a_new(2)*step; %normal (y)
+    vgx_new = curr_velo(1) + a_new(1)*timePerIter; %tangential (x)
+    vgy_new = curr_velo(2) + a_new(2)*timePerIter; %normal (y)
     curr_velo(1) = vgx_new;
     curr_velo(2) = vgy_new; %this can be simplified to just reassign a variable to itself again?
     curr_velo(3) = vgx_new/ball_dim(2); % omega = v/r
@@ -217,8 +225,8 @@ while t_curr < tmax_ge(3)
     
     
     %***Find X_new, Y_new
-    X_new = X_curr + cos(a_new(3))*(vgx_new*step + a_new(1)*step^2) - sin(a_new(3))*(vgy_new*step + a_new(2)*step^2);
-    Y_new = Y_curr + sin(a_new(3))*(vgx_new*step + a_new(1)*step^2) + cos(a_new(3))*(vgy_new*step + a_new(2)*step^2);
+    X_new = X_curr + cos(a_new(3))*(vgx_new*timePerIter + a_new(1)*timePerIter^2) - sin(a_new(3))*(vgy_new*timePerIter + a_new(2)*timePerIter^2);
+    Y_new = Y_curr + sin(a_new(3))*(vgx_new*timePerIter + a_new(1)*timePerIter^2) + cos(a_new(3))*(vgy_new*timePerIter + a_new(2)*timePerIter^2);
     X_curr = X_new;
     Y_curr = Y_new; 
     
@@ -234,7 +242,7 @@ while t_curr < tmax_ge(3)
     %Weird geometry going on here, see segment 1 or 2 for info.
     
     %******************************************where is 85 and 255 from?
-    t_curr = eval(solve(-X_contact + (85*sin(tvar))/2 - (85*tvar)/2 + 255)) %uses sx_ge(3) equation
+    t_curr = eval(solve(-X_contact + (17*sin(tvar))/400 - (17*tvar)/400 + 51/200)) %uses sx_ge(3) equation
     % 'snap' Y_curr to curve + add radius of ball to account for iteration error
     Y_curr = eval(subs(sy_ge(3),t,t_curr)) + ball_dim(2)*sin(a_new(3)+pi/2);
    
@@ -248,7 +256,7 @@ while t_curr < tmax_ge(3)
     
     iter = iter + 1;
 end
-time_taken = (iter-1)*step
+time_taken = (iter-1)*timePerIter
 
 
 
