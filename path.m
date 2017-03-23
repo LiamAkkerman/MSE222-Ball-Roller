@@ -12,9 +12,10 @@ syms sx_brach sy_brach
 
 %project constants
 hmax = 0.889; %starting hieght in m
-segs = 6;   %number of line segments
+%EDIT adding another segment so i form 6 to 7
+segs = 7;   %number of line segments
 m_in_inch = 0.0254; %how many m in an inch
-ball_radius = 0.0081; %diameter of marble, in metres
+ball_dia = 0.0081; %diameter of marble, in metres
 
 %initialize empty vectors for hieghts, starts, and ends
 h = NaN([1,segs]);
@@ -37,8 +38,8 @@ sy_brach = -0.5*h_brach*(1-cos(t));
 %plot borders
 rectangle('Position', [0 0 0.9144 0.9144]);
 hold on;
-circ_start_pos = [(m_in_inch - ball_radius) (hmax - ball_radius) 2*ball_radius 2*ball_radius];
-circ_end_pos = [(hmax - ball_radius) (m_in_inch - ball_radius) 2*ball_radius 2*ball_radius];
+circ_start_pos = [(m_in_inch - ball_dia) (hmax - ball_dia) 2*ball_dia 2*ball_dia];
+circ_end_pos = [(hmax - ball_dia) (m_in_inch - ball_dia) 2*ball_dia 2*ball_dia];
 rectangle('Position', circ_start_pos, 'Curvature',[1 1]);
 rectangle('Position', circ_end_pos, 'Curvature',[1 1]);
 
@@ -48,8 +49,8 @@ i = 1; %let's try this way, still need to iterate
 tmin(i) = 0;
 tmax(i) = 3.14*1.25;
 h(i) = 0.075;
-sx(i) = subs(sx_brach, h_brach, h(1)) + m_in_inch - ball_radius;
-sy(i) = subs(sy_brach, h_brach, h(1)) + hmax - ball_radius;
+sx(i) = subs(sx_brach, h_brach, h(1)) + m_in_inch - ball_dia;
+sy(i) = subs(sy_brach, h_brach, h(1)) + hmax - ball_dia;
 
 %next line needs this
 deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
@@ -60,43 +61,58 @@ ezplot(sx(i),sy(i),[tmin(i),tmax(i)])
 %linear segment, maybe we'll keep, maybe not
 i = 2;
 %I made the max up randomly
+%EDIT extend ramp so visable
 tmin(i) = 0;
-tmax(i) = 0.010;
+tmax(i) = 0.020;
 
 %parametric equation of line
 sx(i) = t + subs(sx(i-1), t, tmax(i-1));
 sy(i) = t*subs(deriv(i-1), t, tmax(i-1)) + subs(sy(i-1), t, tmax(i-1));
 
 %add it to the plot
-ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
+ezplot(sx(i),sy(i),[tmin(i),tmax(i)])
 
+%EDIT add aditional overhang to get rid of free fall between sick jump and
+ %next segment
+ i = 3;
+ %find starting angel based on slope of sick jump
+ tmin(i)=(pi/2)-atan(subs(deriv(i-2),t,tmax(i-2)));
+ tmax(i)=pi;
+ 
+ %Slop to bring ball form sick jump to second fast ramp
+ h(i) = 2.5*ball_dia;
+ sx(i) = -h(i)*cos(t) + subs(sx(i-1), t, tmax(i-1)) - (ball_dia)*cos(atan(subs(deriv(i-2),t,tmax(i-2)))+(pi/2));
+ sy(i) = h(i)*sin(t) + subs(sy(i-1), t, tmax(i-1)) + (ball_dia)*cos(atan(subs(deriv(i-2),t,tmax(i-2)))+(pi/2));
+%plot
+ezplot(sx(i),sy(i),[tmin(i),tmax(i)]);
 
+%EDIT cange all i to i+1 since adding another segment as the new i=3
 %landing ramp
-i = 3;
+i = 4;
 h(i) = 0.085;
 tmin(i) = 0;
 tmax(i) = 3.14;
 %translational offset is purely guessed. we could caluculate better based on
 %tridectory anaylsis
-sx(i) = -subs(sx_brach, h_brach, h(i)) + 0.255;
-sy(i) = subs(sy_brach, h_brach, h(i)) + 0.839;
+sx(i) = -subs(sx_brach, h_brach, h(i)) + subs(sx(i-1),t,tmax(i-1));
+sy(i) = subs(sy_brach, h_brach, h(i)) + subs(sy(i-1),t,tmax(i-1));
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
 
 
 %arc to bring the ball down to the last curve
-i = 4;
-h(i) = 5*ball_radius;
+i = 5;
+h(i) = 5*ball_dia;
 tmin(i) = 0;
 tmax(i) = 3.14/2;
 sx(i) = -h(i)*cos(t) + subs(sx(i-1), t, tmax(i-1));
-sy(i) = h(i)*sin(t) + subs(sy(i-1 ), t, tmax(i-1)) - (h(i) - 2*ball_radius) + 0.001; %additional 1mm is for tolerance
+sy(i) = h(i)*sin(t) + subs(sy(i-1 ), t, tmax(i-1)) - (h(i) - 2*ball_dia) + 0.001; %additional 1mm is for tolerance
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
 
 
 %last large brach curve
-i = 5;
+i = 6;
 h(i) = subs(sy(i-1), t, tmin(i-1)) - circ_end_pos(2);
 tmin(i) = 0;
 tmax(i) = 3.14;
@@ -105,16 +121,16 @@ sy(i) = subs(sy_brach, h_brach, h(i)) + subs(sy(i-1), t, tmin(i-1));
 
 %standard brach curve is too long, scale it back.
 %possibley change to scale both x and y instead of just x
-x_factor = (circ_end_pos(1) + ball_radius - subs(sx(i-1), t, tmin(i-1)) - 0.025)/(subs(sx(i), t, tmax(i)) - subs(sx(i-1), t, tmin(i-1)));
+x_factor = (circ_end_pos(1) + ball_dia - subs(sx(i-1), t, tmin(i-1)) - 0.025)/(subs(sx(i), t, tmax(i)) - subs(sx(i-1), t, tmin(i-1)));
 sx(i) = x_factor*subs(sx_brach, h_brach, h(i)) + subs(sx(i-1), t, tmin(i-1));
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
                         
 
 %last line, flat
-i = 6;
+i = 7;
 tmin(i) = 0;
-tmax(i) = circ_end_pos(1) - subs(sx(i-1), t, tmax(i-1)) + ball_radius + m_in_inch;
+tmax(i) = circ_end_pos(1) - subs(sx(i-1), t, tmax(i-1)) + ball_dia + m_in_inch;
 sx(i) = t + subs(sx(i-1), t, tmax(i-1));
 sy(i) = subs(sy(i-1), t, tmax(i-1));
 
