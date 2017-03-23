@@ -8,6 +8,10 @@
 %Can fix approximation error by snapping to correct y-position given
 %x-position if abs(theta) <= 45deg ? snap to x from y-pos if >45deg?
 
+
+path()
+
+
 %Setup initial conditions
 curr_velo = [0,0,0,0]; %vgx, vgy, omega, alpha
 ball_dim = [0.000714,0.0081,1.8738216*10^-8]; %mass, radius, MoI
@@ -68,7 +72,7 @@ while t_curr < tmax_ge(1)
     %***Find change in theta between previous iterations (used to improve 
     %accuracy of finding t_curr)
     theta_change = a_new(3) - theta_prev; %(i-1 theta) - (i-2 theta) to approx change in theta
-    theta_prev = eval(subs(theta_ge(1),t,t_curr+0.001)); % +0.001 added to fix div by zero errors
+    theta_prev = a_new(3);
     
     %***Find new 't_curr' by calculating the x-coord of the point of
     %contact
@@ -92,6 +96,10 @@ while t_curr < tmax_ge(1)
     results(5,iter) = curr_velo(3); % angular velocity
     results(6,iter) = curr_velo(4); % angular acceleration
     
+    results_seg1(1) = curr_velo(1);
+    results_seg1(2) = curr_velo(2);
+    results_seg1(3) = (curr_velo(1)^2+curr_velo(2)^2)^0.5;
+    
     iter = iter + 1;
 end
 time_taken = (iter-1)*step
@@ -114,7 +122,7 @@ while t_curr < tmax_ge(2)
     curr_velo(4) = a_new(1)/ball_dim(2); % alpha = agx/r
     
     
-    %***Find x_new, y_new
+    %***Find x_new, y_new (note: a_new(3) is theta)
     X_new = 1000*(X_curr/1000 + cos(a_new(3))*(vgx_new*step + a_new(1)*step^2) - sin(a_new(3))*(vgy_new*step + a_new(2)*step^2));
     Y_new = 1000*(Y_curr/1000 + sin(a_new(3))*(vgx_new*step + a_new(1)*step^2) + cos(a_new(3))*(vgy_new*step + a_new(2)*step^2));
     X_curr = X_new;
@@ -124,11 +132,17 @@ while t_curr < tmax_ge(2)
     %vertical coord system to find X_new and Y_new. X & Y are in mm, so
     %convert to meters first.
     
-    %***Find new 't_curr' using x coords
+    %***Find change in theta between previous iterations (used to improve 
+    %accuracy of finding t_curr)
+    theta_change = a_new(3) - theta_prev; %(i-1 theta) - (i-2 theta) to approx change in theta
+    theta_prev = a_new(3);
     
-    t_curr = eval(solve(-X_curr + tvar - (75*sin(157/40))/2 + 13207/80)) %uses sx_ge(2) equation
-    % 'snap' Y_curr to curve to account for iteration error
-    Y_curr = eval(subs(sy_ge(2),t,t_curr));
+    X_contact = X_curr - 1000*ball_dim(2)*cos(a_new(3)+pi/2+theta_change); 
+    %For explination, see segment 1 description of this part
+    
+    t_curr = eval(solve(-X_contact + tvar - (75*sin(157/40))/2 + 13207/80)); %uses sx_ge(2) equation
+    % 'snap' Y_curr to curve + add radius of ball to account for iteration error
+    Y_curr = eval(subs(sy_ge(2),t,t_curr)) + 1000*ball_dim(2)*sin(a_new(3)+pi/2);
     
     %***Save values in array
     results(1,iter) = X_curr; % x position using global coords
@@ -142,15 +156,107 @@ while t_curr < tmax_ge(2)
 end
 time_taken = (iter-1)*step
 
-hold on
-scatter(results(1,:),results(2,:))
+
 
 % ***** Begin brief freefall of ball to segment 3
 % for here, the only accel is due to gravity g
 % omega remains constant and alpha = 0
 
-% TODO add code here
+%convert from funky normal & tangential velocity to plain ol' orthogonal
+vgx_new = cos(a_new(3))*curr_velo(1) - sin(a_new(3))*curr_velo(2);
+vgy_new = sin(a_new(3))*curr_velo(1) + cos(a_new(3))*curr_velo(2);
+curr_velo(1) = vgx_new;
+curr_velo(2) = vgy_new;
 
+%Find (approximate) point of impact for when to switch to segment 3
+%this is done by guessing location of impact point via the figure
+t_curr = eval(solve(-252.1 + (85*sin(tvar))/2 - (85*tvar)/2 + 255)); %(impact point x-coord approximated to 252.1)
+X_impact = eval(subs(sx_ge(3),t,t_curr)) - sin(eval(subs(theta_ge(3),t,t_curr)))*ball_dim(2)*1000;
+%Approx. x-coords of ball center of mass when it impacts segment 3
+
+while X_curr < X_impact
+    
+    %***Find v_new, omega, and angular accel
+    vgy_new = curr_velo(2) + -9.81*step; % accel down due to gravity
+    curr_velo(2) = vgy_new; %this can be simplified to just reassign a variable to itself again?
+    %omega remains unchanged
+    curr_velo(4) = 0; % alpha = 0, no moment on ball
+    
+    %***Find x and y
+    X_curr = 1000*(X_curr/1000 + curr_velo(1)*step);
+    Y_curr = 1000*(Y_curr/1000 + curr_velo(2)*step);
+    results(1,iter) = X_curr; % x position using global coords
+    results(2,iter) = Y_curr; % y position using global coords
+    iter = iter + 1;
+end %end of free fall
+
+% ***** Segment 3 (from here on, minimal comments to reduce visual clutter)
+%convert back from plain oatmeal orthogonal velocities to spicy sriracha
+%normal and tangential velocities
+vgx_new = cos(eval(subs(theta_ge(3),t,t_curr)))*curr_velo(1) + sin(eval(subs(theta_ge(3),t,t_curr)))*curr_velo(2);
+%vgy_new = - sin(eval(subs(theta_ge(3),t,t_curr)))*curr_velo(1) + cos(eval(subs(theta_ge(3),t,t_curr)))*curr_velo(2);
+vgy_new = 0; %***assume the ball doesn't bounce, and instead 'sticks' to the surface
+curr_velo(1) = vgx_new;
+curr_velo(2) = vgy_new;
+X_curr = X_impact; %'snap' to position on track
+
+while t_curr < tmax_ge(3)
+    %***Find agx, agy:
+    a_new = general_analysis(curr_velo,ball_dim, 3,t_curr); %finds agx,agy,theta
+    
+    %***Find v_new, omega, and angular accel
+    vgx_new = curr_velo(1) + a_new(1)*step; %tangential (x)
+    vgy_new = curr_velo(2) + a_new(2)*step; %normal (y)
+    curr_velo(1) = vgx_new;
+    curr_velo(2) = vgy_new; %this can be simplified to just reassign a variable to itself again?
+    curr_velo(3) = vgx_new/ball_dim(2); % omega = v/r
+    curr_velo(4) = a_new(1)/ball_dim(2); % alpha = agx/r
+    
+    
+    %***Find X_new, Y_new
+    X_new = 1000*(X_curr/1000 + cos(a_new(3))*(vgx_new*step + a_new(1)*step^2) - sin(a_new(3))*(vgy_new*step + a_new(2)*step^2));
+    Y_new = 1000*(Y_curr/1000 + sin(a_new(3))*(vgx_new*step + a_new(1)*step^2) + cos(a_new(3))*(vgy_new*step + a_new(2)*step^2));
+    X_curr = X_new;
+    Y_curr = Y_new; 
+    
+    %***Find change in theta between previous iterations (used to improve 
+    %accuracy of finding t_curr)
+    theta_change = a_new(3) - theta_prev; %(i-1 theta) - (i-2 theta) to approx change in theta
+    theta_prev = a_new(3);
+    
+    %***Find new 't_curr' by calculating the x-coord of the point of
+    %contact
+    
+    X_contact = X_curr - 1000*ball_dim(2)*cos(a_new(3)+pi/2+theta_change); 
+    %Weird geometry going on here, see segment 1 or 2 for info.
+    
+    t_curr = eval(solve(-X_contact + (85*sin(tvar))/2 - (85*tvar)/2 + 255)) %uses sx_ge(3) equation
+    % 'snap' Y_curr to curve + add radius of ball to account for iteration error
+    Y_curr = eval(subs(sy_ge(3),t,t_curr)) + 1000*ball_dim(2)*sin(a_new(3)+pi/2);
+   
+    %***Save values in array
+    results(1,iter) = X_curr; % x position using global coords
+    results(2,iter) = Y_curr; % y position using global coords
+    results(3,iter) = (curr_velo(1)^2+curr_velo(2)^2)^0.5; % magnitude of velo
+    results(4,iter) = (a_new(1)^2 + a_new(2)^2)^0.5; % magnitude of accel
+    results(5,iter) = curr_velo(3); % angular velocity
+    results(6,iter) = curr_velo(4); % angular acceleration
+    
+    iter = iter + 1;
+end
+time_taken = (iter-1)*step
+
+
+
+
+
+
+
+
+
+hold on
+plot(results(1,:),results(2,:))
+scatter(results(1,:),results(2,:))
 
 %x = subs(evalin('base','sx'),t,t_cur); % eval. x at ti
 
