@@ -4,7 +4,7 @@ x_end =   0 - (75*sin(157/40))/2 + 13207/80;
 
 y_start = (75*cos(157/40))/2 + (10*sin(157/40))/(cos(157/40) - 1) + 844;
 y_end =   (75*cos(157/40))/2 + (0*sin(157/40))/(cos(157/40) - 1) + 844;
-
+%****************************so many constants
 
 
 
@@ -41,7 +41,7 @@ while x < x_end
     %over very short distances & periods of time, we can assume
     %acceleration is constant (irl, it will vary)
     %for this case, accel is constant as it is a linear slope
-    x_new = 1000*(x(iter-1)/1000 + v_new*step + 0.5*A(1)*step^2);
+    x_new = x(iter-1) + v_new*step + 0.5*A(1)*step^2;
     x(iter) = x_new;
     y(iter) = 100 + x*(10/69);
     iter = iter + 1
