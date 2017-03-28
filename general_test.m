@@ -17,7 +17,7 @@ path()
 
 %Setup initial conditions
 curr_velo = [0,0,0,0]; %vgx, vgy, omega, alpha
-ball_dim = [0.000714,0.0081,1.8738216*10^-8]; %mass (kg), radius (m), MoI (kg/m^2)
+ball_dim = [0.000551,0.0081,1.8738216*10^-8]; %mass (kg), radius (m), MoI (kg/m^2)
 timePerIter = 0.01;  %step size (in seconds)
 iter = 1;
 syms tvar;
@@ -56,7 +56,10 @@ while t_curr < tmax_ge(1)
     
     %***Find v_new, omega, and angular accel
     vgx_new = curr_velo(1) + a_new(1)*timePerIter; %tangential (x)
-    vgy_new = curr_velo(2) + a_new(2)*timePerIter; %normal (y)
+    %vgy_new = curr_velo(2) + a_new(2)*timePerIter; %normal (y) NOTE: this
+    %part is incorrect! there is no instantaneous normal velocity of
+    %the ball, but there IS normal acceleration!
+    vgy_new = 0;
     curr_velo(1) = vgx_new;
     curr_velo(2) = vgy_new; %this can be simplified to just reassign a variable to itself again?
     curr_velo(3) = vgx_new/ball_dim(2); % omega = v/r
@@ -82,7 +85,7 @@ while t_curr < tmax_ge(1)
     %***Find new 't_curr' by calculating the x-coord of the point of
     %contact
     
-    X_contact = X_curr - ball_dim(2)*cos(a_new(3)+pi/2+theta_change); 
+    X_contact = X_curr - ball_dim(2)*cos(a_new(3)+pi/2+theta_change*0); 
     %Some weird geometry stuff going on here. Basically, this accounts for
     %how the change of the position of the center of mass isn't exactly the
     %same as the change of the position of the point of contact. Pos. of
@@ -92,7 +95,7 @@ while t_curr < tmax_ge(1)
     %***************************************************************************where did these constant numbers come from?
     t_curr = eval(solve(-X_contact + (3*tvar)/80 - (3*sin(tvar))/80 + 173/10000)) %uses sx_ge(1) equation
     % 'snap' Y_curr to curve + add radius of ball to account for iteration error
-    Y_curr = eval(subs(sy_ge(1),t,t_curr)) + ball_dim(2)*sin(a_new(3)+pi/2);
+    %Y_curr = eval(subs(sy_ge(1),t,t_curr)) + ball_dim(2)*sin(a_new(3)+pi/2);
    
     %***Save values in array
     results(1,iter) = X_curr; % x position using global coords
@@ -102,6 +105,8 @@ while t_curr < tmax_ge(1)
     results(5,iter) = curr_velo(3); % angular velocity
     results(6,iter) = curr_velo(4); % angular acceleration
     results(7,iter) = a_new(3); %theta
+    results(8,iter) = a_new(1);
+    results(9,iter) = a_new(2);
     
     results_seg1(1) = curr_velo(1);
     results_seg1(2) = curr_velo(2);
@@ -116,13 +121,14 @@ time_taken = (iter-1)*timePerIter
 t_curr = tmin_ge(2); %this isn't always true for the start of each segment!
 
 while t_curr < tmax_ge(2)
+
     %***Find agx, agy:
     a_new = general_analysis(curr_velo,ball_dim, 2,t_curr); %finds agx,agy, and 
     %theta given velocity, ball dimensions, segment #, and current t value
     
     %***Find v_new, omega, and angular accel
     vgx_new = curr_velo(1) + a_new(1)*timePerIter; %tangential (lowercase x)
-    vgy_new = curr_velo(2) + a_new(2)*timePerIter; %normal (lowercase y)
+    vgy_new = 0; % no tangential velocity
     curr_velo(1) = vgx_new;
     curr_velo(2) = vgy_new; %this can be simplified to just reassign a variable to itself again?
     curr_velo(3) = vgx_new/ball_dim(2); % omega = v/r
@@ -161,63 +167,26 @@ while t_curr < tmax_ge(2)
     results(6,iter) = curr_velo(4); % angular acceleration
     results(7,iter) = a_new(3); %theta
     
+    
     iter = iter + 1;
 end
 time_taken = (iter-1)*timePerIter
 
 
-
-% ***** Begin brief freefall of ball to segment 3
-% for here, the only accel is due to gravity g
-% omega remains constant and alpha = 0
-
-%convert from funky normal & tangential velocity to plain ol' orthogonal
-vgx_new = cos(a_new(3))*curr_velo(1) - sin(a_new(3))*curr_velo(2);
-vgy_new = sin(a_new(3))*curr_velo(1) + cos(a_new(3))*curr_velo(2);
-curr_velo(1) = vgx_new;
-curr_velo(2) = vgy_new;
-
-
-
-%Find (approximate) point of impact for when to switch to segment 3
-%this is done by guessing location of impact point via the figure
-t_curr = eval(solve(-0.2521+ (17*sin(t))/400 - (17*t)/400 + 51/200)); %(impact point x-coord approximated to 0.2521)
-X_impact = eval(subs(sx_ge(3),t,t_curr)) - sin(eval(subs(theta_ge(3),t,t_curr)))*ball_dim(2);
-%Approx. x-coords of ball center of mass when it impacts segment 3
-
-while X_curr < X_impact
-    
-    %***Find v_new, omega, and angular accel
-    vgy_new = curr_velo(2) + -g*timePerIter; % accel down due to gravity
-    curr_velo(2) = vgy_new; %this can be simplified to just reassign a variable to itself again?
-    %omega remains unchanged
-    curr_velo(4) = 0; % alpha = 0, no moment on ball
-    
-    %***Find x and y
-    X_curr = X_curr + curr_velo(1)*timePerIter;
-    Y_curr = Y_curr + curr_velo(2)*timePerIter;
-    results(1,iter) = X_curr; % x position using global coords
-    results(2,iter) = Y_curr; % y position using global coords
-    iter = iter + 1;
-end %end of free fall
-
 % ***** Segment 3 (from here on, minimal comments to reduce visual clutter)
-%convert back from plain oatmeal orthogonal velocities to spicy sriracha
-%normal and tangential velocities
-vgx_new = cos(eval(subs(theta_ge(3),t,t_curr)))*curr_velo(1) + sin(eval(subs(theta_ge(3),t,t_curr)))*curr_velo(2);
-%vgy_new = - sin(eval(subs(theta_ge(3),t,t_curr)))*curr_velo(1) + cos(eval(subs(theta_ge(3),t,t_curr)))*curr_velo(2);
-vgy_new = 0; %***assume the ball doesn't bounce, and instead 'sticks' to the surface
-curr_velo(1) = vgx_new;
-curr_velo(2) = vgy_new;
-X_curr = X_impact; %'snap' to position on track
+t_curr = tmin_ge(3)
+
+%TODO: fix velocity issues
 
 while t_curr < tmax_ge(3)
+
     %***Find agx, agy:
     a_new = general_analysis(curr_velo,ball_dim, 3,t_curr); %finds agx,agy,theta
+    a_new(3) = a_new(3) + pi; %this is to account for the track being upside down
     
     %***Find v_new, omega, and angular accel
     vgx_new = curr_velo(1) + a_new(1)*timePerIter; %tangential (x)
-    vgy_new = curr_velo(2) + a_new(2)*timePerIter; %normal (y)
+    vgy_new = 0; %no tangential velocity
     curr_velo(1) = vgx_new;
     curr_velo(2) = vgy_new; %this can be simplified to just reassign a variable to itself again?
     curr_velo(3) = vgx_new/ball_dim(2); % omega = v/r
@@ -242,9 +211,16 @@ while t_curr < tmax_ge(3)
     %Weird geometry going on here, see segment 1 or 2 for info.
     
     %******************************************where is 85 and 255 from?
-    t_curr = eval(solve(-X_contact + (17*sin(tvar))/400 - (17*tvar)/400 + 51/200)) %uses sx_ge(3) equation
+    t_curr = eval(solve(-X_contact + 61693823379613275/288230376151711744 - (81*cos(tvar))/4000,'Real',1)); %uses simplified sx_ge(3) equation
+    for j = 1:2
+        if t_curr(j) >= tmin_ge(3)
+            if t_curr(j) < tmax_ge(3)
+                t_curr = t_curr(j)
+            end
+        end
+    end
     % 'snap' Y_curr to curve + add radius of ball to account for iteration error
-    Y_curr = eval(subs(sy_ge(3),t,t_curr)) + ball_dim(2)*sin(a_new(3)+pi/2);
+    %Y_curr = eval(subs(sy_ge(3),t,t_curr)) + ball_dim(2)*sin(a_new(3)+pi/2);
    
     %***Save values in array
     results(1,iter) = X_curr; % x position using global coords
@@ -283,3 +259,52 @@ scatter(results(1,:),results(2,:))
 % else
 %     t_curr = eval(solve(-Y_curr + 75*cos(tvar)/2 + 844,'PrincipalValue',1)) % uses the sy_ge(1) equn
 % end
+
+
+
+
+
+%***** below is code used for freefall: unused in the final build?
+
+
+% ***** Begin brief freefall of ball to segment 3
+% for here, the only accel is due to gravity g
+% omega remains constant and alpha = 0
+% 
+% %convert from funky normal & tangential velocity to plain ol' orthogonal
+% vgx_new = cos(a_new(3))*curr_velo(1) - sin(a_new(3))*curr_velo(2);
+% vgy_new = sin(a_new(3))*curr_velo(1) + cos(a_new(3))*curr_velo(2);
+% curr_velo(1) = vgx_new;
+% curr_velo(2) = vgy_new;
+% 
+% 
+% 
+% %Find (approximate) point of impact for when to switch to segment 3
+% %this is done by guessing location of impact point via the figure
+% t_curr = eval(solve(-0.2521+ (17*sin(t))/400 - (17*t)/400 + 51/200)); %(impact point x-coord approximated to 0.2521)
+% X_impact = eval(subs(sx_ge(3),t,t_curr)) - sin(eval(subs(theta_ge(3),t,t_curr)))*ball_dim(2);
+% %Approx. x-coords of ball center of mass when it impacts segment 3
+% 
+% while X_curr < X_impact
+%     
+%     %***Find v_new, omega, and angular accel
+%     vgy_new = curr_velo(2) + -g*timePerIter; % accel down due to gravity
+%     curr_velo(2) = vgy_new; %this can be simplified to just reassign a variable to itself again?
+%     %omega remains unchanged
+%     curr_velo(4) = 0; % alpha = 0, no moment on ball
+%     
+%     %***Find x and y
+%     X_curr = X_curr + curr_velo(1)*timePerIter;
+%     Y_curr = Y_curr + curr_velo(2)*timePerIter;
+%     results(1,iter) = X_curr; % x position using global coords
+%     results(2,iter) = Y_curr; % y position using global coords
+%     iter = iter + 1;
+% end %end of free fall
+%convert back from plain oatmeal orthogonal velocities to spicy sriracha
+% %normal and tangential velocities
+% vgx_new = cos(eval(subs(theta_ge(3),t,t_curr)))*curr_velo(1) + sin(eval(subs(theta_ge(3),t,t_curr)))*curr_velo(2);
+% %vgy_new = - sin(eval(subs(theta_ge(3),t,t_curr)))*curr_velo(1) + cos(eval(subs(theta_ge(3),t,t_curr)))*curr_velo(2);
+% vgy_new = 0; %***assume the ball doesn't bounce, and instead 'sticks' to the surface
+% curr_velo(1) = vgx_new;
+% curr_velo(2) = vgy_new;
+% X_curr = X_impact; %'snap' to position on track
