@@ -4,11 +4,12 @@ clf;
 
 
 %basic mathmatical symbols
-syms x y t h_brach
+syms x y t h_brach s
 %parametric equation symbols, to be array
 syms sx sy  
 %equations of Brachistochrone curve
 syms sx_brach sy_brach  
+syms arc_length
 
 %project constants
 hmax = 0.889; %starting hieght in m
@@ -148,5 +149,9 @@ for i = 1:segs
     
     rad_of_curv(i) = simplify(((diff(sx(i))^2 + diff(sy(i))^2)^(3/2)) / abs( (diff(sx(i))*(diff(sy(i),2))) - (diff(sy(i))*(diff(sx(i),2))) )); 
     %need to use parametric equation for rad of curv (what a beastcyclo)
-    d_arc_length(i) = simplify(sqrt(diff(sy(i))^2 + diff(sx(i))^2));
+    d_arc_length(i) = sqrt(diff(sy(i))^2 + diff(sx(i))^2)
+    %following line depends on tmin = 0
+    arc_length(i) = int(d_arc_length(i),t)
+    s_arc_length(i) = solve(s == arc_length(i),t)
+    %currently giving error. should output https://www.wolframalpha.com/input/?i=s%3D-(3+sin(t))%2F(40+sqrt(sin%5E2(t%2F2))),+solve+for+t
 end
