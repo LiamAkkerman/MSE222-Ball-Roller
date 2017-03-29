@@ -4,12 +4,12 @@ clf;
 
 
 %basic mathmatical symbols
-syms x y t h_brach s
+syms x y t h_brach s posative
 %parametric equation symbols, to be array
 syms sx sy  
 %equations of Brachistochrone curve
 syms sx_brach sy_brach  
-syms arc_length
+syms arc_length posative
 
 %project constants
 hmax = 0.889; %starting hieght in m
@@ -30,6 +30,10 @@ tmax = NaN([1,segs]);
 sx = sym('sx', [1,segs]);
 sy = sym('sy', [1,segs]);
 deriv = sym('sy', [1,segs]);
+
+arc_length = sym('arc_length', [1,segs]);
+t_arc_length = sym('t_arc_length', [1,segs]);
+d_arc_length = sym('d_arc_length', [1,segs]);
 
 %define Brachistochrone curve parametric equations
 sx_brach = 0.5*h_brach*(t-sin(t));  
@@ -141,17 +145,33 @@ ezplot(sx(i),sy(i),[tmin(i),tmax(i)])
 
 %get more info for anaylis
 for i = 1:segs
-    deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
-    deriv2(i) = simplify(diff(deriv(i)));
-    theta(i) = simplify(atan(deriv(i)));
+    %following lines commented out for testing purposes
+    % deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
+    % deriv2(i) = simplify(diff(deriv(i)));
+    % theta(i) = simplify(atan(deriv(i)));
     
     %rad_of_curv(i) = ((1 + deriv(i)^2)^(3/2))/deriv2(i); wrong form of eq
     
-    rad_of_curv(i) = simplify(((diff(sx(i))^2 + diff(sy(i))^2)^(3/2)) / abs( (diff(sx(i))*(diff(sy(i),2))) - (diff(sy(i))*(diff(sx(i),2))) )); 
+    %commented for speed
+    % rad_of_curv(i) = simplify(((diff(sx(i))^2 + diff(sy(i))^2)^(3/2)) / abs( (diff(sx(i))*(diff(sy(i),2))) - (diff(sy(i))*(diff(sx(i),2))) )); 
     %need to use parametric equation for rad of curv (what a beastcyclo)
-    d_arc_length(i) = sqrt(diff(sy(i))^2 + diff(sx(i))^2)
+    d_arc_length(i) = sqrt(diff(sy(i))^2 + diff(sx(i))^2);
     %following line depends on tmin = 0
-    arc_length(i) = int(d_arc_length(i),t)
-    s_arc_length(i) = solve(s == arc_length(i),t)
+    if i == 6
+        digits(8);
+        d_arc_length(i) = vpa(d_arc_length(i));
+    end
+    if tmin(i) == 0
+        arc_length(i) = int(d_arc_length(i),t);
+    else
+        arc_length(i) = int(d_arc_length(i),t,tmin(i),t);
+    end
+    %t_arc_length2(i) = solve(s == arc_length(i),t,'ReturnConditions',1,'PrincipalValue',true)
+    gg = solve(s == arc_length(i),t,'Real',1)
     %currently giving error. should output https://www.wolframalpha.com/input/?i=s%3D-(3+sin(t))%2F(40+sqrt(sin%5E2(t%2F2))),+solve+for+t
+    
+    string = ['segement = ', num2str(i), ',   ds = ', char(d_arc_length(i)), ',   s(t) = ', char(arc_length(i)), ',   t(s) = ', char(t_arc_length(i))];
+    disp(string);
 end
+
+%vpa(arc_length(6))
