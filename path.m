@@ -146,14 +146,14 @@ ezplot(sx(i),sy(i),[tmin(i),tmax(i)])
 %get more info for anaylis
 for i = 1:segs
     %following lines commented out for testing purposes
-    % deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
-    % deriv2(i) = simplify(diff(deriv(i)));
-    % theta(i) = simplify(atan(deriv(i)));
+    deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
+    deriv2(i) = simplify(diff(deriv(i)));
+    theta(i) = simplify(atan(deriv(i)));
     
     %rad_of_curv(i) = ((1 + deriv(i)^2)^(3/2))/deriv2(i); wrong form of eq
     
     %commented for speed
-    % rad_of_curv(i) = simplify(((diff(sx(i))^2 + diff(sy(i))^2)^(3/2)) / abs( (diff(sx(i))*(diff(sy(i),2))) - (diff(sy(i))*(diff(sx(i),2))) )); 
+    rad_of_curv(i) = simplify(((diff(sx(i))^2 + diff(sy(i))^2)^(3/2)) / abs( (diff(sx(i))*(diff(sy(i),2))) - (diff(sy(i))*(diff(sx(i),2))) )); 
     %need to use parametric equation for rad of curv (what a beastcyclo)
     d_arc_length(i) = sqrt(diff(sy(i))^2 + diff(sx(i))^2);
     %following line depends on tmin = 0
