@@ -232,10 +232,6 @@ end
 time_taken = (iter-1)*timePerIter
 
 
-
-
-% #####
-
 % ***** Fourth Segment
 t_curr = tmin_ge(4); %this isn't always true for the start of each segment!
 
@@ -296,8 +292,60 @@ while t_curr < tmax_ge(4)
 end
 time_taken = (iter-1)*timePerIter
 
-% #####
 
+t_curr = tmax_ge(5)
+
+%NOTE!!: For this segment, t goes from tmax to tmin for some reason!
+
+while t_curr > tmin_ge(5)
+
+    % *** Find agx, agy:
+    a_new = general_analysis(curr_velo,ball_dim, 5,t_curr); %finds agx,agy,theta
+    
+    % *** Find v_new, omega, and angular accel
+    vgx_new = curr_velo(1) + a_new(1)*timePerIter; %tangential (x)
+    vgy_new = 0; %no tangential velocity
+    curr_velo(1) = vgx_new;
+    curr_velo(2) = vgy_new; %this can be simplified to just reassign a variable to itself again?
+    curr_velo(3) = vgx_new/ball_dim(2); % omega = v/r
+    curr_velo(4) = a_new(1)/ball_dim(2); % alpha = agx/r
+    
+    % *** Find X_new, Y_new
+    X_new = X_curr + cos(a_new(3))*(vgx_new*timePerIter + 0.5*a_new(1)*timePerIter^2) + sin(a_new(3))*(vgy_new*timePerIter + 0.5*a_new(2)*timePerIter^2);
+    Y_new = Y_curr + sin(a_new(3))*(vgx_new*timePerIter + 0.5*a_new(1)*timePerIter^2) - cos(a_new(3))*(vgy_new*timePerIter + 0.5*a_new(2)*timePerIter^2);
+    X_curr = X_new;
+    Y_curr = Y_new; 
+
+    % *** Theta Change Calculation
+    % In this section, ignore theta_change correction since it makes the
+    % whole thing a bit wonky for now ? fix later?
+    %theta_change = a_new(3) - theta_prev; %(i-1 theta) - (i-2 theta) to approx change in theta
+    theta_change = 0;
+    theta_prev = a_new(3);
+    
+    %*** Find new 't_curr'
+    % Completed by calculating the x-coord of the point of contact
+    X_contact = X_curr + ball_dim(2)*cos(a_new(3)+pi/2+theta_change); 
+    %Weird geometry going on here, see segment 1 or 2 for info. Note, this
+    %is changed compared to seg 1 & 2 versions due to track inversion,
+    
+    % *** Calculate t_curr
+    t_curr = acos(908926702018138375/364791569817010176 - (2000*X_contact)/81);
+    %Above equation was found by solving the sx_ge(3) == X_contact equation for t 
+    
+    % *** Snap Y_curr to line to account for slight drift 
+    Y_curr = eval(subs(sy_ge(5),t,t_curr)) + ball_dim(2)*sin(a_new(3)-pi/2);
+   
+    % *** Save values in array
+    results(1,iter) = X_curr; % x position using global coords
+    results(2,iter) = Y_curr; % y position using global coords
+    results(3,iter) = sqrt(curr_velo(1)^2+curr_velo(2)^2); % magnitude of velo
+    results(4,iter) = sqrt(a_new(1)^2 + a_new(2)^2); % magnitude of accel
+    results(5,iter) = curr_velo(3); % angular velocity
+    results(6,iter) = curr_velo(4); % angular acceleration
+    
+    iter = iter + 1; 
+end
 
 
 
