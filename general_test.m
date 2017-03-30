@@ -234,7 +234,69 @@ time_taken = (iter-1)*timePerIter
 
 
 
+% #####
 
+% ***** Fourth Segment
+t_curr = tmin_ge(4); %this isn't always true for the start of each segment!
+
+curr_velo(1) = -curr_velo(1); % To account for ball travelling right to left
+theta_prev = 1.5707; % To account for theta_change being unused in previous segment
+
+while t_curr < tmax_ge(4)
+
+    %***Find agx, agy:
+    a_new = general_analysis(curr_velo,ball_dim, 4,t_curr); %finds agx,agy, and 
+    %theta given velocity, ball dimensions, segment #, and current t value
+    
+    %***Find v_new, omega, and angular accel
+    vgx_new = curr_velo(1) + a_new(1)*timePerIter; %tangential (lowercase x)
+    vgy_new = 0; % no tangential velocity
+    curr_velo(1) = vgx_new;
+    curr_velo(2) = vgy_new; %this can be simplified to just reassign a variable to itself again?
+    curr_velo(3) = vgx_new/ball_dim(2); % omega = v/r
+    curr_velo(4) = a_new(1)/ball_dim(2); % alpha = agx/r
+    
+    
+    %***Find x_new, y_new (note: a_new(3) is theta)
+    X_new = X_curr + cos(a_new(3))*(vgx_new*timePerIter + 0.5*a_new(1)*timePerIter^2) - sin(a_new(3))*(vgy_new*timePerIter + 0.5*a_new(2)*timePerIter^2);
+    Y_new = Y_curr + sin(a_new(3))*(vgx_new*timePerIter + 0.5*a_new(1)*timePerIter^2) + cos(a_new(3))*(vgy_new*timePerIter + 0.5*a_new(2)*timePerIter^2);
+    X_curr = X_new;
+    Y_curr = Y_new;
+    %This is done by converting vgx & vgy tangential and normal velocities
+    %(they should probably called something else lol) to the horizontal &
+    %vertical coord system to find X_new and Y_new. X & Y are in mm, so
+    %convert to meters first.
+    
+    %***Find change in theta between previous iterations (used to improve 
+    %accuracy of finding t_curr)
+    theta_change = a_new(3) - theta_prev; %(i-1 theta) - (i-2 theta) to approx change in theta
+    theta_change = 0;
+    theta_prev = a_new(3);
+    
+    X_contact = X_curr - ball_dim(2)*cos(a_new(3)+pi/2+theta_change); 
+    %For explination, see segment 1 description of this part
+    
+    %*************************************again, what are these numbers?
+    %t_curr = eval(solve(-X_contact + (17*sin(t))/400 - (3*sin(157/40))/80 - (81*cos(pi/2 + atan(sin(157/40)/(cos(157/40) - 1))))/10000 - (17*tvar)/400 + 16379/80000)) %uses sx_ge(4) equation
+    t_curr = solve ((17*sin(t))/400 - (17*t)/400 + 337652442483427206561/1441151880758558720000-X_contact,t)
+    % 'snap' Y_curr to curve + add radius of ball to account for iteration error
+    Y_curr = eval(subs(sy_ge(4),t,t_curr)) + ball_dim(2)*sin(a_new(3)+pi/2);
+    
+    %***Save values in array
+    results(1,iter) = X_curr; % x position using global coords
+    results(2,iter) = Y_curr; % y position using global coords
+    results(3,iter) = sqrt(curr_velo(1)^2+curr_velo(2)^2); % magnitude of velo
+    results(4,iter) = sqrt(a_new(1)^2 + a_new(2)^2); % magnitude of accel
+    results(5,iter) = curr_velo(3); % angular velocity
+    results(6,iter) = curr_velo(4); % angular acceleration
+    results(7,iter) = a_new(3); %theta
+    
+    
+    iter = iter + 1;
+end
+time_taken = (iter-1)*timePerIter
+
+% #####
 
 
 
