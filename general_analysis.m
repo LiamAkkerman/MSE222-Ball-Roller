@@ -43,7 +43,7 @@ catch ME % if you caaaann (feat. Leo DiCaprio)
 end
 
 % *** Calc agy
-agy = ((vgx/curr_roc)^2)*curr_roc;
+agy = ((vgx/curr_roc).^2)*curr_roc;
 if isnan(agy) %checks if agy is NaN (happens if curr_roc = 0)
     agy = 0;
 end
