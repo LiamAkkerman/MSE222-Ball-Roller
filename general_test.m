@@ -1,16 +1,45 @@
-%general_test
+% general_test.m
+
+% This code determines the time it takes for a marble of defined dimensions
+% to travel along all 7 predefined segments, as well as determining the
+% velocity, accel, and angular velo/accel at each iteration point.
+
+% This is essentially done by determining the acceleration of the ball at a
+% given point, then by assuming that the acceleration would be "constant"
+% over a very short time interval, finding the resulting new velocity and
+% ball position.
+
+% For the actual calculations, the acceleration is found by finding the
+% current t_curr value for that point on the line. Basically, the lines
+% representing the curves are parametric equations, so t_curr is the value
+% that represents the current X & Y coordinates of the point of contact of
+% the marble. Knowing t_curr also gives us the normal and tangential
+% acceleration of the ball as well as some other useful stuff too. To find
+% the location of the center of mass of the marble, we can take the
+% position of the point of contact and add the offset from the radius of
+% the marble if we know theta (can be found using t_curr). By using
+% acceleration at that point, we can find the new X Y coords of the center
+% of mass of the marble. We then need to find the respective t_curr value
+% for the new point of contact of the marble with the line. We can find the
+% approximate location of that point by subtracting the offset of the radius of
+% the ball by knowing the previous angle plus a guesstimated value
+% 'theta_change' to improve accuracy (not used in segment 4 atm). Now that
+% the approximate location of the point of contact is found, we can find
+% the t_curr value by using the equation (X_contact = sx_ge(#)),
+% essentially meaning we can use the x-component of the parametric equation
+% and the x value of the contact point to find t_curr (as long as the 
+% segment passes the vertical line test, which they all do). Now that we have 
+% t_curr, the loop checks if it's reached the end of the segment and the 
+% process continues. :)
+
+% Note that in the calculations, lowercase (x,y) represent tangential and 
+% normal components and uppercase (X,Y) represent global coordinates. Ex:
+% vgx_new is the tangential velocity of the ball. Sometimes the coordinate
+% systems are weird for some segments so be careful lol
+
 
 clc
 clear all
-
-%TODO
-% add code for each of the segments
-% NOTE: if any of the original path.m equations are changed, the code for
-% finding the next t_curr must be fixed as well as it is hardcoded in atm
-
-%Can fix approximation error by snapping to correct y-position given
-%x-position if abs(theta) <= 45deg ? snap to x from y-pos if >45deg?
-
 
 path()
 
@@ -355,6 +384,7 @@ end
 t_curr = tmin_ge(6); %this isn't always true for the start of each segment!
 
 curr_velo(1) = -curr_velo(1); % To account for ball travelling left to right
+theta_prev = -1.5704;
 
 while t_curr < tmax_ge(6)
 
@@ -418,6 +448,7 @@ time_taken = (iter-1)*timePerIter
 % ***** Segment 7
 t_curr = tmin_ge(7); %this isn't always true for the start of each segment!
 
+
 while X_curr < 0.889 % While ball position isn't at the finish position
 
     %***Find agx, agy:
@@ -471,6 +502,7 @@ while X_curr < 0.889 % While ball position isn't at the finish position
     results(7,iter) = a_new(3); %theta
     
     
+    
     iter = iter + 1;
 end
 time_taken = (iter-1)*timePerIter
@@ -480,6 +512,11 @@ time_taken = (iter-1)*timePerIter
 hold on
 plot(results(1,:),results(2,:))
 scatter(results(1,:),results(2,:))
+
+%Plot velocity over iterations
+%plot(results(3,:))
+
+
 
 %x = subs(evalin('base','sx'),t,t_cur); % eval. x at ti
 
