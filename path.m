@@ -1,7 +1,13 @@
-clear all;
-clf;
-%TODO add info
+function [ Soln ] = path(parameters,ball_dim)
 
+
+start_hieght = parameters(1);
+ramp_angle = parameters(2);
+ramp_length = parameters(3);
+arc_1_dia = parameters(4);
+landing_height = parameters(5);
+arc_2_dia = parameters(6);
+flat_legnth = parameters(7);
 
 %basic mathmatical symbols
 syms x y t h_brach s posative
@@ -16,7 +22,7 @@ hmax = 0.889; %starting hieght in m
 %EDIT adding another segment so i form 6 to 7
 segs = 7;   %number of line segments
 m_in_inch = 0.0254; %how many m in an inch
-ball_dia = 0.0081; %diameter of marble, in metres
+ball_dia = 2*ball_dim(2); %diameter of marble, in metres
 
 %initialize empty vectors for hieghts, starts, and ends
 h = NaN([1,segs]);
@@ -52,8 +58,8 @@ i = 1; %let's try this way, still need to iterate
 %substitute a values into brach functions
 %the max is made up to have a upwards slope for the sick jump
 tmin(i) = 0;
-tmax(i) = 3.14*1.25;
-h(i) = 0.075;
+tmax(i) = pi*ramp_angle; %1.25
+h(i) = start_hieght; %0.075
 sx(i) = subs(sx_brach, h_brach, h(1)) + m_in_inch - ball_dia;
 sy(i) = subs(sy_brach, h_brach, h(1)) + hmax - ball_dia;
 
@@ -68,7 +74,7 @@ i = 2;
 %I made the max up randomly
 %EDIT extend ramp so visable
 tmin(i) = 0;
-tmax(i) = 0.020;
+tmax(i) = ramp_length; %0.020
 
 %parametric equation of line
 sx(i) = t + subs(sx(i-1), t, tmax(i-1));
@@ -85,7 +91,7 @@ ezplot(sx(i),sy(i),[tmin(i),tmax(i)])
  tmax(i)=pi;
  
  %Slop to bring ball form sick jump to second fast ramp
- h(i) = 2.5*ball_dia;
+ h(i) = arc_1_dia*ball_dia; %2.5
  sx(i) = -h(i)*cos(t) + subs(sx(i-1), t, tmax(i-1)) - (ball_dia)*cos(atan(subs(deriv(i-2),t,tmax(i-2)))+(pi/2));
  sy(i) = h(i)*sin(t) + subs(sy(i-1), t, tmax(i-1)) + (ball_dia)*cos(atan(subs(deriv(i-2),t,tmax(i-2)))+(pi/2));
 %plot
@@ -94,9 +100,9 @@ ezplot(sx(i),sy(i),[tmin(i),tmax(i)]);
 %EDIT cange all i to i+1 since adding another segment as the new i=3
 %landing ramp
 i = 4;
-h(i) = 0.085;
+h(i) = landing_height; %0.085
 tmin(i) = 0;
-tmax(i) = 3.14;
+tmax(i) = pi;
 %translational offset is purely guessed. we could caluculate better based on
 %tridectory anaylsis
 sx(i) = -subs(sx_brach, h_brach, h(i)) + subs(sx(i-1),t,tmax(i-1));
@@ -107,9 +113,9 @@ ezplot(sx(i),sy(i),[tmin(i),tmax(i)])
 
 %arc to bring the ball down to the last curve
 i = 5;
-h(i) = 5*ball_dia;
+h(i) = arc_2_dia*ball_dia;
 tmin(i) = 0;
-tmax(i) = 3.14/2;
+tmax(i) = pi/2;
 sx(i) = -h(i)*cos(t) + subs(sx(i-1), t, tmax(i-1));
 sy(i) = h(i)*sin(t) + subs(sy(i-1 ), t, tmax(i-1)) - (h(i) - 2*ball_dia) + 0.001; %additional 1mm is for tolerance
 
@@ -126,7 +132,7 @@ sy(i) = subs(sy_brach, h_brach, h(i)) + subs(sy(i-1), t, tmin(i-1));
 
 %standard brach curve is too long, scale it back.
 %possibley change to scale both x and y instead of just x
-x_factor = (circ_end_pos(1) + ball_dia - subs(sx(i-1), t, tmin(i-1)) - 0.025)/(subs(sx(i), t, tmax(i)) - subs(sx(i-1), t, tmin(i-1)));
+x_factor = (circ_end_pos(1) + ball_dia - subs(sx(i-1), t, tmin(i-1)) - flat_legnth)/(subs(sx(i), t, tmax(i)) - subs(sx(i-1), t, tmin(i-1)));
 sx(i) = x_factor*subs(sx_brach, h_brach, h(i)) + subs(sx(i-1), t, tmin(i-1));
 
 ezplot(sx(i),sy(i),[tmin(i),tmax(i)]) 
