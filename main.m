@@ -19,5 +19,6 @@ ball_dim = NaN([1,3]);
     ball_dim(3) = (7/5)*ball_dim(1)*ball_dim(2)^2; %monemt of inertia
     
 path_array = path(parameters,ball_dim);
-    
+rad_of_curv = rad_of_curv_funct(path_array(1,:),path_array(2,:));
+theta = theta_funct(path_array(1,:),path_array(2,:));    
     
