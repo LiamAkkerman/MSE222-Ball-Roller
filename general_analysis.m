@@ -1,4 +1,4 @@
-function [ Soln ] = general_analysis(curr_velo, ball_dim, i, t_cur)
+function [ Soln ] = general_analysis(theta,rad_of_curv,curr_velo, ball_dim, i, t_cur, atan_tol)
 
 syms t
 
@@ -18,9 +18,6 @@ vgx   = curr_velo(1);
 vgy   = curr_velo(2);
 omega = curr_velo(3);
 
-%bring in data from path.m
-theta_ge = evalin('base','theta');
-rad_of_curv_ge = evalin('base','rad_of_curv');
 %tmin_ge = evalin('base','tmin'); %Initial t (vector)
 
 %t_cur = tmin_ge(i);
@@ -32,11 +29,11 @@ rad_of_curv_ge = evalin('base','rad_of_curv');
 %Calculate agx & agy (need to calc current rad of curv first)
 % *** Calc current theta. (0.0001 added since for some cases if t_cur = 0, returns
 % error for div by zero)
-curr_theta = eval(subs(theta_ge(i),t,t_cur+0.0001));
+curr_theta = eval(subs(theta(i),t,t_cur+atan_tol));
 
 % *** Calc radius of curvature
 try %Can fail to calc RoC in some cases, so check here
-    curr_roc = eval(subs(rad_of_curv_ge(i),t,t_cur)); %finds current radius of curvature
+    curr_roc = eval(subs(rad_of_curv(i),t,t_cur)); %finds current radius of curvature
 catch ME % if you caaaann (feat. Leo DiCaprio)
     curr_roc = 0;
     %disp('Div. by zero was detected during rad_of_curv calculation and fixed. (set to 0)')
