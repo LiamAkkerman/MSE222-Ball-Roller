@@ -456,16 +456,35 @@ while X_curr < 0.889 % While ball position isn't at the finish position
 end
 time_taken = (iter-1)*timePerIter
 
+%find linear acceleration
 
-
+%plot all the things
+%plot xy cg points
 hold on
-plot(results(1,:),results(2,:))
-scatter(results(1,:),results(2,:))
+subplot(3,3,[1 2 4 5]);
+plot(results(1,:),results(2,:));
+scatter(results(1,:),results(2,:));
+title('Ball Position');
 
 %Plot velocity over iterations
-%plot(results(3,:))
+subplot(3,3,3)
+plot(results(3,:))
+title('Linear Velocity');
 
+%plot acceleration
+subplot(3,3,6)
+plot(results(4,:))
+title('Linear Acceleration');
 
+%plot angular velocity
+subplot(3,3,7)
+plot(results(5,:))
+title('Angular Velocity');
+
+%plot angular acceleration
+subplot(3,3,8)
+plot(results(6,:))
+title('Angular Acceleration');
 
 %x = subs(evalin('base','sx'),t,t_cur); % eval. x at ti
 
