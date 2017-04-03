@@ -98,7 +98,7 @@ i = 4;
 
 %arc to bring the ball down to the last curve
 i = 5;
-    h(i) = arc_2_dia*ball_dia;
+    h(i) = arc_2_dia*ball_dia; %5
     tmin(i) = 0;
     tmax(i) = pi/2;
     sx(i) = -h(i)*cos(t) + subs(sx(i-1), t, tmax(i-1));
