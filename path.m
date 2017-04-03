@@ -1,4 +1,4 @@
-function [ Soln ] = path(parameters,ball_dim)
+function [ soln ] = path(parameters,ball_dim)
 
 
 start_hieght = parameters(1);
@@ -128,7 +128,7 @@ i = 7;
 
 
     
-    
+ soln = [sx;sy;tmin;tmax];   
     
     
     

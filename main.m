@@ -1,5 +1,6 @@
 
-
+clf
+clear all
 
 parameters = NaN([1,9]);
     parameters(1) = 0.075; %start_hieght
@@ -14,6 +15,9 @@ parameters = NaN([1,9]);
     
 ball_dim = NaN([1,3]);
     ball_dim(1) = 0.000551; %mass (kg)
-    ball_dim(1) = 0.0081; %raduis (m)
-    ball_dim(1) = 1.8738216*10^-8; %monemt of inertia
+    ball_dim(2) = 0.0081; %raduis (m)
+    ball_dim(3) = (7/5)*ball_dim(1)*ball_dim(2)^2; %monemt of inertia
+    
+path_array = path(parameters,ball_dim);
+    
     
