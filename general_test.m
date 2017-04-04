@@ -202,7 +202,7 @@ while t_curr < tmax_ge(2)
     %For explination, see segment 1 description of this part
     
     %*************************************again, what are these numbers?
-    t_curr = eval(solve(-X_contact + tvar - (3*sin(157/40))/80 + 13159/80000)) %uses sx_ge(2) equation
+    t_curr = X_contact - 34398703330718350307/180143985094819840000 %uses sx_ge(2) equation
     % 'snap' Y_curr to curve + add radius of ball to account for iteration error
     Y_curr = eval(subs(sy_ge(2),t,t_curr)) + ball_dim(2)*sin(a_new(3)+pi/2);
     
@@ -257,7 +257,7 @@ while t_curr < tmax_ge(3)
     %is changed compared to seg 1 & 2 versions due to track inversion,
     
     % *** Calculate t_curr
-    t_curr = acos(102823038966022130827/9727775195120271360 - (4000*X_contact)/81)
+    t_curr = acos(321321996768819125/30399297484750848 - (4000*X_contact)/81)
     %Above equation was found by solving the sx_ge(3) == X_contact equation for t 
     
     % *** Snap Y_curr to line to account for slight drift 
@@ -409,7 +409,7 @@ while t_curr < tmax_ge(6)
     
  
     %Find t_curr using sx_ge(6) equation (simplified) and X_contact
-    t_curr = solve((2520299339554973*t)/9843000955906036 - (2520299339554973*sin(t))/9843000955906036 + 2176540528804513/36028797018963968 - X_contact)
+    t_curr = solve((11350419166481883404180349057063*t)/44328935437225859658807934713856 - (11350419166481883404180349057063*sin(t))/44328935437225859658807934713856 + 5441351322011282287/90071992547409920000-X_contact)
     
     
     % 'snap' Y_curr to curve + add radius of ball to account for iteration error
