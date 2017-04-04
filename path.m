@@ -128,43 +128,8 @@ i = 7;
 
 
     
- soln = [sx;sy;tmin;tmax];   
+ soln = [sx;sy;tmin;tmax]   
     
-    
-    
-    
-    
-
-%get more info for anaylis
-for i = 1:segs
-    %following lines commented out for testing purposes
-    deriv(i) = simplify(diff(sy(i))/diff(sx(i)));
-%     deriv2(i) = simplify(diff(deriv(i)));
-    theta(i) = simplify(atan(deriv(i)));
-    
-    %rad_of_curv(i) = ((1 + deriv(i)^2)^(3/2))/deriv2(i); wrong form of eq
-    
-    %commented for speed
-    rad_of_curv(i) = simplify(((diff(sx(i))^2 + diff(sy(i))^2)^(3/2)) / abs( (diff(sx(i))*(diff(sy(i),2))) - (diff(sy(i))*(diff(sx(i),2))) )); 
-    %need to use parametric equation for rad of curv (what a beastcyclo)
-%     d_arc_length(i) = sqrt(diff(sy(i))^2 + diff(sx(i))^2);
-%     %following line depends on tmin = 0
-%     if i == 6
-%         digits(8);
-%         d_arc_length(i) = vpa(d_arc_length(i));
-%     end
-%     if tmin(i) == 0
-%         arc_length(i) = int(d_arc_length(i),t);
-%     else
-%         arc_length(i) = int(d_arc_length(i),t,tmin(i),t);
-%     end
-%     %t_arc_length2(i) = solve(s == arc_length(i),t,'ReturnConditions',1,'PrincipalValue',true)
-%     gg = solve(s == arc_length(i),t,'Real',1)
-%     %currently giving error. should output https://www.wolframalpha.com/input/?i=s%3D-(3+sin(t))%2F(40+sqrt(sin%5E2(t%2F2))),+solve+for+t
-%     
-%     string = ['segement = ', num2str(i), ',   ds = ', char(d_arc_length(i)), ',   s(t) = ', char(arc_length(i)), ',   t(s) = ', char(t_arc_length(i))];
-%     disp(string);
-end
 
 end
 

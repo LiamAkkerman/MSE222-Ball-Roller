@@ -21,6 +21,7 @@ ball_dim = NaN([1,3]);
 anal_param = NaN([1,2]);
     anal_param(1) = 0.005; %step size in seconds
     anal_param(2) = 0.00001; %atan error corection
+    anal_param(3) = 0.017; %coeifiecnt of friction
     
 path_array = path(path_param,ball_dim);
 rad_of_curv = rad_of_curv_funct(path_array(1,:),path_array(2,:));
