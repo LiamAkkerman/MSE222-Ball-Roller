@@ -18,43 +18,48 @@ end
 %plot(mean(1,:),mean(2,:))
 
 scattervar = [1:10:length(mean)];
+timevar = [0:0.002:0.948]
 
 %plot all the things
 %plot xy cg points
 subplot(3,3,[1 2 4 5]);
 hold on
-plot(mean(1,:),mean(2,:),'r');
+plot(mean(1,:),mean(2,:),'r','LineWidth',1);
 scatter(mean(1,scattervar),mean(2,scattervar),'k');
 title('Ball Position');
 
 %Plot velocity over iterations
 subplot(3,3,3)
 hold on
-plot(mean(3,:))
-plot(results_low(3,:))
-plot(results_high(3,:))
+plot(mean(3,:),'LineWidth',1)
+plot(results_low(3,:),'LineWidth',1)
+plot(results_high(3,:),'LineWidth',1)
 title('Linear Velocity');
+legend('Mean','Min','Max')
 
 %plot acceleration
 subplot(3,3,6)
 hold on
-plot(mean(4,:))
-plot(results_low(4,:))
-plot(results_high(4,:))
+plot(mean(4,:),'LineWidth',1)
+plot(results_low(4,:),'LineWidth',1)
+plot(results_high(4,:),'LineWidth',1)
 title('Linear Acceleration');
+legend('Mean','Min','Max')
 
 %plot angular velocity
 subplot(3,3,7)
 hold on
-plot(mean(5,:))
-plot(results_low(5,:))
-plot(results_high(5,:))
+plot(mean(5,:),'LineWidth',1)
+plot(results_low(5,:),'LineWidth',1)
+plot(results_high(5,:),'LineWidth',1)
 title('Angular Velocity');
+legend('Mean','Min','Max')
 
 %plot angular acceleration
 subplot(3,3,8)
 hold on
-plot(mean(6,:))
-plot(results_low(6,:))
-plot(results_high(6,:))
+plot(mean(6,:),'LineWidth',1)
+plot(results_low(6,:),'LineWidth',1)
+plot(results_high(6,:),'LineWidth',1)
 title('Angular Acceleration');
+legend('Mean','Min','Max')

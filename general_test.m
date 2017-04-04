@@ -65,7 +65,7 @@ ball_dim = [0.000551,0.0081,NaN,0.017]; %mass (kg), radius (m), MoI (kg/m^2), co
 %ball_dim = [0.000551,0.0081,NaN,0.017]*0.9; %mass (kg), radius (m), MoI (kg/m^2), coeff of friction
 
 %Parameters *110%
-ball_dim = [0.000551,0.0081,NaN,0.017]*0.9; %mass (kg), radius (m), MoI (kg/m^2), coeff of friction
+%ball_dim = [0.000551,0.0081,NaN,0.017]*0.9; %mass (kg), radius (m), MoI (kg/m^2), coeff of friction
 
 
 
