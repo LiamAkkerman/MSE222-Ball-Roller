@@ -1,5 +1,8 @@
 % general_test.m
 
+% get results for slowest, 6 for each parameter, fastest, regular, mean and
+% find time for each one
+
 
 %TODO: Add friction components (can be done in general_analysis?)
 % I think that when the theta is evaluated, it kinda goes a bit crazy when
@@ -54,8 +57,20 @@ path()
 
 %Setup initial conditions
 curr_velo = [0,0,0,0]; %vgx, vgy, omega, alpha
-ball_dim = [0.000551,0.0081,1.8738216*10^-8]; %mass (kg), radius (m), MoI (kg/m^2)
-timePerIter = 0.005;  %step size (in seconds)
+
+%Normal Parameters
+ball_dim = [0.000551,0.0081,NaN,0.017]; %mass (kg), radius (m), MoI (kg/m^2), coeff of friction
+%ball_dim(4) = ball_dim(4)*1.1;
+%(Parameters * 90%)
+%ball_dim = [0.000551,0.0081,NaN,0.017]*0.9; %mass (kg), radius (m), MoI (kg/m^2), coeff of friction
+
+%Parameters *110%
+ball_dim = [0.000551,0.0081,NaN,0.017]*0.9; %mass (kg), radius (m), MoI (kg/m^2), coeff of friction
+
+
+
+ball_dim(3) = (2/5)*ball_dim(1)*(ball_dim(2))^2;
+timePerIter = 0.002;  %step size (in seconds)
 iter = 1;
 syms tvar;
 g = 9.81;
@@ -344,7 +359,7 @@ while t_curr > tmin_ge(5)
     
     % *** Calculate t_curr
     t_curr = acos(908926702018138375/364791569817010176 - (2000*X_contact)/81);
-    %Above equation was found by solving the sx_ge(3) == X_contact equation for t 
+    %Above equation was found by solving the sx_ge(5) == X_contact equation for t 
     
     % *** Snap Y_curr to line to account for slight drift 
     Y_curr = eval(subs(sy_ge(5),t,t_curr)) + ball_dim(2)*sin(a_new(3)-pi/2);
@@ -456,6 +471,9 @@ while X_curr < 0.889 % While ball position isn't at the finish position
 end
 time_taken = (iter-1)*timePerIter
 
+results_low = importdata('results_all_lo2.mat');
+results_high = importdata('results_all_hi2.mat');
+
 %find linear acceleration
 
 %plot all the things
@@ -468,23 +486,48 @@ title('Ball Position');
 
 %Plot velocity over iterations
 subplot(3,3,3)
+hold on
 plot(results(3,:))
+plot(results_low(3,:))
+plot(results_high(3,:))
 title('Linear Velocity');
 
 %plot acceleration
 subplot(3,3,6)
+hold on
 plot(results(4,:))
+plot(results_low(4,:))
+plot(results_high(4,:))
 title('Linear Acceleration');
 
 %plot angular velocity
 subplot(3,3,7)
+hold on
 plot(results(5,:))
+plot(results_low(5,:))
+plot(results_high(5,:))
 title('Angular Velocity');
 
 %plot angular acceleration
 subplot(3,3,8)
+hold on
 plot(results(6,:))
+plot(results_low(6,:))
+plot(results_high(6,:))
 title('Angular Acceleration');
+
+%##########
+%save('results_all_lo2.mat','results')
+%##########
+
+
+
+subplot(3,3,9)
+hold on
+plot(results(3,:))
+plot(results_high(3,:))
+plot(results_low(3,:))
+title('thing');
 
 %x = subs(evalin('base','sx'),t,t_cur); % eval. x at ti
 

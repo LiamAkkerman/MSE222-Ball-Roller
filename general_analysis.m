@@ -50,6 +50,15 @@ end
 
 % *** Calc agx
 agx = -(ball_dim(1)*g*ball_dim(2)^2*sin(curr_theta))/(ball_dim(3)+ball_dim(1)*ball_dim(2)^2);
+
+%quickfix for adding friction
+if curr_velo(1) >= 0
+    agx = agx - ball_dim(4)*agy;
+end
+if curr_velo(1) < 0
+    agx = agx + ball_dim(4)*agy;
+end
+
 Soln(1) = agx;
 Soln(2) = agy;
 Soln(3) = curr_theta;
