@@ -1,5 +1,4 @@
 # MSE222 Ball Roller
 
-This is our project for MSE222. Our objective is make a track that a ball rolls down in the shortest amount of time. 
-edit
-edit
+This is our project for MSE222. Our objective is make a track that a ball rolls down in the shortest amount of time. \\
+Run general_test.m for results. Takes about 1 minute on most machines. \\
